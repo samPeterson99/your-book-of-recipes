@@ -124,3 +124,7 @@ a {
   border: 1px solid grey;
   height: 26px;
 }
+
+.modal {
+  box-shadow: 0 0 0 9999px rgba(192, 192, 192, 0.5);
+}
