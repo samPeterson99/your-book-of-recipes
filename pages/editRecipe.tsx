@@ -43,7 +43,7 @@ export default function EditRecipe({
   };
 
   const handleInstructionChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLTextAreaElement>,
     index: number
   ) => {
     let data = [...instructions];

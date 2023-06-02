@@ -64,7 +64,7 @@ export default function Dashboard({
 
     const result = await response.json();
     console.log(router);
-    router.asPath();
+    router.asPath;
   }
 
   //move delete button to card
