@@ -9,17 +9,17 @@ import { redirect } from "next/dist/server/api-utils";
 import { useState } from "react";
 import { NextPageContext } from "next";
 
-export default function Dashboard({ 
-    recipes
- }: {
-    recipes: {
-        _id: string
-        title: string
-        source?: string
-        ingredients: string[]
-        instructions: string[]
-    }[]
- }) {
+export default function Dashboard({
+  recipes,
+}: {
+  recipes: {
+    _id: string;
+    title: string;
+    source?: string;
+    ingredients: string[];
+    instructions: string[];
+  }[];
+}) {
   const { data: session, status } = useSession();
   const [search, setSearch] = useState("");
   const [order, setOrder] = useState("");
@@ -75,25 +75,24 @@ export default function Dashboard({
     return (
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 p-2">
         <div className=" bg-cream rounded border-4 border-black flex flex-col content-between">
-          <h1 className="mt-4 text-3xl font-semibold">Your Recipes</h1>
-          <p className="text-sm mt-2 mb-2">
-            Here are all the recipes you&lsquo;ve saved so far. Click on the card to
-            see more.
+          <h1 className="mt-4 pl-2 text-3xl font-semibold">Your Recipes</h1>
+          <p className="text-sm mt-2 mb-2 px-2">
+            Here are all the recipes you&lsquo;ve saved so far. Click on the
+            card to see more.
           </p>
-          <label className="border-y-2 w-full bg-purple border-gray-400">
+          <label className="border-y-2 w-full pl-2 bg-purple border-gray-400">
             Search recipes:{" "}
           </label>
           <input
             name="title"
-            className="w-full border-gray-500 border-b-2"
+            className="w-full border-gray-500 pl-2 border-b-2"
             placeholder="e.g. beans, other things"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
           <Link
             href="/recipeForm"
-            className="flex-none border-gray-500 border-b-2 w-full bg-purple text-center"
-          >
+            className="flex-none border-gray-500 border-b-2 w-full bg-purple text-center">
             Add new recipe
           </Link>
           <label className="flex-none border-b-2 border-gray-500 w-full bg-purple text-center">
@@ -103,15 +102,13 @@ export default function Dashboard({
             <button
               className="flex-none border-b-2 border-r-2 border-gray-500 w-1/2 bg-purple text-center"
               type="button"
-              onClick={() => setOrder("AZ")}
-            >
+              onClick={() => setOrder("AZ")}>
               A-Z
             </button>
             <button
               className="flex-none border-b-2 border-gray-500 w-1/2 bg-purple text-center"
               type="button"
-              onClick={() => setOrder("ZA")}
-            >
+              onClick={() => setOrder("ZA")}>
               Z-A
             </button>
           </div>
@@ -119,15 +116,13 @@ export default function Dashboard({
           <button
             className="flex-none border-b-2 border-gray-500 w-full bg-purple text-center"
             type="button"
-            onClick={() => setOrder("ing")}
-          >
+            onClick={() => setOrder("ing")}>
             # of ingredients
           </button>
           <button
             className=" bg-purple text-center"
             type="button"
-            onClick={() => setOrder("inst")}
-          >
+            onClick={() => setOrder("inst")}>
             # of instructions
           </button>
         </div>

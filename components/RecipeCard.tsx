@@ -54,7 +54,7 @@ const RecipeCard = ({
                 <button
                   className="text-white bg-darkGreen font-bold uppercase text-sm px-6 py-3 rounded outline-none focus:outline-none mr-1 mb-1"
                   type="button"
-                  onClick={() => setShowModal(false)}>
+                  onClick={() => deleteRecipe(recipe._id)}>
                   Yup!
                 </button>
               </div>
@@ -72,8 +72,8 @@ const RecipeCard = ({
           className="z-25 stroke-2 text-cream font-bold  bg-black  p-1 h-8 self-end"
           onClick={() => setShowModal(true)}
         />
-        <h3 className="text-2xl">{recipe.title}</h3>
-        <ul className="h-1/2 list-disc">
+        <h3 className="text-2xl pl-2">{recipe.title}</h3>
+        <ul className=" mb-4 h-1/2 list-disc">
           {ingredientPreview.map((form, index) => {
             return (
               <li
@@ -100,7 +100,7 @@ const RecipeCard = ({
               id: recipe._id,
             },
           }}
-          className="border-y-2 w-full bg-purple border-gray-400">
+          className="border-y-2 w-full bg-purple pl-2 border-gray-400">
           Click for recipe
         </Link>
       </div>

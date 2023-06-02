@@ -46,25 +46,54 @@ a {
 
 }
 
-.form, .page {
-  gap: 8px;
-  padding-top: 6px;
-  display: flex;
-  flex-direction: row;
+@media (max-width: 450px) {
+  .form, .page {
+    gap: 8px;
+    padding-top: 6px;
+    display: flex;
+    flex-direction: column;
+  }
 }
 
-.pageLeft, .pageRight {
-  display: flex;
-  flex-direction: column;
-  padding: 0px 10px;
+@media (min-width: 451px) {
+  .form, .page {
+    gap: 8px;
+    padding-top: 6px;
+    display: flex;
+    flex-direction: row;
+  }
 }
 
-.pageLeft {
-  width: 40%;
+@media (max-width: 450px) {
+  .pageLeft, .pageRight {
+    display: flex;
+    flex-direction: column;
+    padding: 0px 10%;
+  }
+  
+  .pageLeft {
+    width: 100%;
+  }
+  
+  .pageRight {
+    width: 100%;
+  }
 }
 
-.pageRight {
-  width: 60%;
+@media (min-width: 451px) {
+  .pageLeft, .pageRight {
+    display: flex;
+    flex-direction: column;
+    padding: 0px 10px;
+  }
+  
+  .pageLeft {
+    width: 40%;
+  }
+  
+  .pageRight {
+    width: 60%;
+  }
 }
 
 .labelLeft {
@@ -80,6 +109,14 @@ a {
 
 .label {
   font: 20px;
+  font-weight: normal;
+  margin-right: 6px;
+  width: 12px;
+}
+
+.listItem {
+  font: 20px;
+  padding-bottom: 8px;
   font-weight: normal;
   margin-right: 6px;
 }
@@ -123,6 +160,7 @@ a {
   background-color: lightgrey;
   border: 1px solid grey;
   height: 26px;
+  line-height: 24px;
 }
 
 .modal {
