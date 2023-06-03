@@ -8,7 +8,7 @@ export default function Nav() {
   return (
     <div className="max-w-full container bg-darkGreen text-cream">
       <div className="flex justify-between p-2 items-center">
-        <h4 className="font-bold text-l flex-none">Your Recipe Book</h4>
+        <h4 className="font-bold text-l -mr-28 flex-none">YOURBOOKofRECIPES</h4>
         <ul className="flex-none">
           <li>
             <Link href="/dashboard">
@@ -18,8 +18,7 @@ export default function Nav() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6"
-              >
+                className="w-6 h-6">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -32,15 +31,13 @@ export default function Nav() {
         {session && session.user ? (
           <button
             className="flex-none border-2 p-2 rounded-2xl border-darkGreen hover:bg-cream hover:text-green"
-            onClick={() => signOut()}
-          >
+            onClick={() => signOut()}>
             Sign out
           </button>
         ) : (
           <button
             className="flex-none"
-            onClick={() => signIn()}
-          >
+            onClick={() => signIn()}>
             Sign in
           </button>
         )}

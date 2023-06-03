@@ -67,12 +67,12 @@ const RecipeCard = ({
 
   return (
     <div className="contents">
-      <div className="flex flex-col h-full bg-cream rounded border-4 border-black justify-between">
+      <div className="flex flex-col h-full rounded border-4 border-black justify-between">
         <XMarkIcon
           className="z-25 stroke-2 text-cream font-bold  bg-black  p-1 h-8 self-end"
           onClick={() => setShowModal(true)}
         />
-        <h3 className="text-2xl pl-2">{recipe.title}</h3>
+        <h3 className="text-2xl font-semibold pl-2">{recipe.title}</h3>
         <ul className=" mb-4 h-1/2 list-disc">
           {ingredientPreview.map((form, index) => {
             return (
@@ -100,7 +100,7 @@ const RecipeCard = ({
               id: recipe._id,
             },
           }}
-          className="border-y-2 w-full bg-purple pl-2 border-gray-400">
+          className="border-y-2 w-full bg-yellow-300 pl-2 border-gray-400">
           Click for recipe
         </Link>
       </div>
