@@ -67,7 +67,8 @@ export default function Home() {
         <div className="w-1/2 p-4 mt-16 mr-24 -ml-8 bg-yellow-300">
           <p>
             Your Book of Recipes is a site to store your favorites. You can even
-            spare yourself the typing. Try out the "Get Recipe" feature below.
+            spare yourself the typing. Try out the &quot;Get Recipe&quot;
+            feature below.
           </p>
         </div>
       </div>
