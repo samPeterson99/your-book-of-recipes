@@ -2,7 +2,7 @@
 //need to figure out typing for these JSONs
 //feels somewhat like TS jsut isn't for this
 
-import { chromium } from "@playwright/test";
+import * as cheerio from "cheerio";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function playwright(
@@ -17,14 +17,16 @@ export default async function playwright(
     }
 
     const scriptContent = await getScriptContent(url);
-    console.log(scriptContent);
-    const string = await JSON.stringify(scriptContent);
-    const json = await JSON.parse(string);
-    console.log(json);
 
-    let title: string = findByKey(json, "title");
-    let ingredients: object | string[] = findByKey(json, "recipeIngredient");
-    let instructions: object | string[] = findByKey(json, "recipeInstructions");
+    let title: string = findByKey(scriptContent, "title");
+    let ingredients: object | string[] = findByKey(
+      scriptContent,
+      "recipeIngredient"
+    );
+    let instructions: object | string[] = findByKey(
+      scriptContent,
+      "recipeInstructions"
+    );
 
     if (!title) {
       title = "";
@@ -52,21 +54,16 @@ export default async function playwright(
 }
 
 async function getScriptContent(url: string) {
-  const browser = await chromium.launch();
-  const context = await browser.newContext();
-  const page = await context.newPage();
+  const html = await fetch(url);
+  const body = await html.text();
 
-  await page.goto(url);
-
-  const scriptContent: string | null = await page.$eval(
-    'script[type="application/ld+json"]',
-    (element) => element.textContent
-  );
-
-  await browser.close();
-
-  return JSON.parse(scriptContent as string);
+  const $ = cheerio.load(body);
+  const scriptTag = $('script[type="application/ld+json"]');
+  const contents = scriptTag.html();
+  const jsonContents = JSON.parse(contents);
+  return jsonContents;
 }
+
 //need to find
 function findByKey(obj: object, key: string): string[] | object | undefined {
   for (let k in obj) {
