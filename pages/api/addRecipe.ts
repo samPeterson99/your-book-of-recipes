@@ -12,13 +12,15 @@ export default async function handler(
 
     const client = await clientPromise;
     const db = client.db("data");
-    const { title, source, ingredients, instructions } = req.body;
+    let { title, source, ingredients, instructions } = req.body;
     console.log(title);
     if (!title || !ingredients || !instructions) {
       return res.status(400).json({ data: "Incomplete recipe" });
     }
 
     const userId: string | undefined = session?.user?.id;
+
+    title = toTitleCase(title);
 
     const post = await db.collection(`${userId}`).insertOne({
       title,
@@ -30,4 +32,13 @@ export default async function handler(
   } catch (error) {
     console.log(error);
   }
+}
+
+function toTitleCase(string: string) {
+  const newString = string
+    .split(" ")
+    .map((w) => w[0].toUpperCase + w.substring(1).toLowerCase())
+    .join(" ");
+  return newString;
+  console.log(newString);
 }

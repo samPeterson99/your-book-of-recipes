@@ -16,39 +16,41 @@ export default function Home() {
 
   const getRecipe = async () => {
     console.log(link);
-    setPageState("loading");
-    try {
-      let url;
+    if (link !== "") {
+      setPageState("loading");
       try {
-        url = new URL(link);
+        let url;
+        try {
+          url = new URL(link);
+        } catch (e) {
+          console.log("error");
+        }
+
+        const object = {
+          link: link,
+        };
+
+        const json = JSON.stringify(object);
+        console.log(json);
+        const endpoint = "/api/getRecipeFromURL";
+        const options = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: json,
+        };
+        console.log("fetch");
+        const response = await fetch(endpoint, options);
+
+        const result = await response.json();
+        setPageState("used");
+        setIngredients(result.ingredients);
+        setInstructions(result.instructions);
+        console.log(result);
       } catch (e) {
-        console.log("error");
+        console.error(e);
       }
-
-      const object = {
-        link: link,
-      };
-
-      const json = JSON.stringify(object);
-      console.log(json);
-      const endpoint = "/api/getRecipeFromURL";
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: json,
-      };
-      console.log("fetch");
-      const response = await fetch(endpoint, options);
-
-      const result = await response.json();
-      setPageState("used");
-      setIngredients(result.ingredients);
-      setInstructions(result.instructions);
-      console.log(result);
-    } catch (e) {
-      console.error(e);
     }
   };
 
@@ -57,21 +59,25 @@ export default function Home() {
       <h1 className="mt-20 text-4xl font-bold">
         Welcome to Your Book of Recipes
       </h1>
-      <div className="flex flex-row">
-        <div className="mt-6 ml-24 h-5/6 w-1/2 p-4 bg-purple">
-          <p>
-            Google is the biggest recipe book of all time, but it can be hard to
-            find quality amidst the quantity.
-          </p>
+      <section>
+        <br />
+        <div className="dotted-background flex flex-row">
+          <div className="mt-6 ml-24 h-5/6 w-1/2 p-8 bg-purple">
+            <p>
+              Google is the biggest recipe book of all time, but it can be hard
+              to find quality amidst the quantity.
+            </p>
+          </div>
+          <div className="w-1/2 p-8 mt-28 mr-24 -ml-8 bg-yellow-300">
+            <p>
+              Your Book of Recipes is a site to store your favorites. You can
+              even spare yourself the typing. Try out the &quot;Get Recipe&quot;
+              feature below.
+            </p>
+          </div>
         </div>
-        <div className="w-1/2 p-4 mt-16 mr-24 -ml-8 bg-yellow-300">
-          <p>
-            Your Book of Recipes is a site to store your favorites. You can even
-            spare yourself the typing. Try out the &quot;Get Recipe&quot;
-            feature below.
-          </p>
-        </div>
-      </div>
+        <br />
+      </section>
 
       <div className="flex flex-col mt-10">
         <h3 className="text-2xl font-semibold self-center">

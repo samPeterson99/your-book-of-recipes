@@ -75,7 +75,7 @@ export default function Dashboard({
     return (
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 p-2">
         <div className="  rounded border-4 border-black flex flex-col content-between">
-          <h1 className="mt-4 pl-2 text-3xl font-bold">Your Recipes</h1>
+          <h1 className="mt-4 px-1 text-3xl font-bold">Your Recipes</h1>
           <p className="text-sm mt-2 mb-2 px-2">
             Here are all the recipes you&lsquo;ve saved so far. Click on the
             card to see more.

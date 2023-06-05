@@ -1,9 +1,15 @@
 import Link from "next/link";
 import { HomeIcon } from "@heroicons/react/24/outline";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export default function Nav() {
   const { data: session } = useSession();
+  const router = useRouter();
+
+  const redirectToSignIn = () => {
+    router.push("/signin");
+  };
 
   return (
     <div className="max-w-full container bg-darkGreen text-cream">
@@ -37,7 +43,7 @@ export default function Nav() {
         ) : (
           <button
             className="flex-none"
-            onClick={() => signIn()}>
+            onClick={redirectToSignIn}>
             Sign in
           </button>
         )}
