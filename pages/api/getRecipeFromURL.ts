@@ -18,7 +18,7 @@ export default async function playwright(
 
     const scriptContent = await getScriptContent(url);
 
-    let title: string = findByKey(scriptContent, "title");
+    let title: string = "";
     let ingredients: object | string[] = findByKey(
       scriptContent,
       "recipeIngredient"
@@ -27,10 +27,6 @@ export default async function playwright(
       scriptContent,
       "recipeInstructions"
     );
-
-    if (!title) {
-      title = "";
-    }
 
     if (typeof ingredients[0] === "object") {
       ingredients = findAllTexts(ingredients);

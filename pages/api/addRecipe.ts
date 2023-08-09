@@ -20,8 +20,6 @@ export default async function handler(
 
     const userId: string | undefined = session?.user?.id;
 
-    title = toTitleCase(title);
-
     const post = await db.collection(`${userId}`).insertOne({
       title,
       source,
@@ -32,12 +30,4 @@ export default async function handler(
   } catch (error) {
     console.log(error);
   }
-}
-
-function toTitleCase(string: string) {
-  const newString = string
-    .split(" ")
-    .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
-    .join(" ");
-  return newString;
 }
