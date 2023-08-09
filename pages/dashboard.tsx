@@ -73,70 +73,72 @@ export default function Dashboard({
     return <h1>loading</h1>;
   } else if (status === "authenticated") {
     return (
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 p-2">
-        <div className="  rounded border-4 border-black flex flex-col content-between">
-          <h1 className="mt-4 px-1 text-3xl font-bold">Your Recipes</h1>
-          <p className="text-sm mt-2 mb-2 px-2">
-            Here are all the recipes you&lsquo;ve saved so far. Click on the
-            card to see more.
-          </p>
-          <label className="border-y-2 w-full pl-2 bg-yellow-300 border-gray-400">
-            Search recipes:{" "}
-          </label>
-          <input
-            name="title"
-            className="w-full border-gray-500 pl-2 border-b-2"
-            placeholder="e.g. beans, other things"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-          <Link
-            href="/recipeForm"
-            className="flex-none border-gray-500 border-b-2 w-full bg-purple text-center">
-            Add new recipe
-          </Link>
-          <label className="flex-none border-b-2 border-gray-500 w-full bg-yellow-300 text-center">
-            Order by
-          </label>
-          <div className="flex">
+      <main className="h-full min-h-screen">
+        <div className=" grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 p-2">
+          <div className="  rounded border-4 border-black flex flex-col content-between">
+            <h1 className="mt-4 px-1 text-3xl font-bold">Your Recipes</h1>
+            <p className="text-sm mt-2 mb-2 px-2">
+              Here are all the recipes you&lsquo;ve saved so far. Click on the
+              card to see more.
+            </p>
+            <label className="border-y-2 w-full pl-2 bg-yellow-300 border-gray-400">
+              Search recipes:{" "}
+            </label>
+            <input
+              name="title"
+              className="w-full border-gray-500 pl-2 border-b-2"
+              placeholder="e.g. beans, other things"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            <Link
+              href="/recipeForm"
+              className="flex-none border-gray-500 border-b-2 w-full bg-purple text-center">
+              Add new recipe
+            </Link>
+            <label className="flex-none border-b-2 border-gray-500 w-full bg-yellow-300 text-center">
+              Order by
+            </label>
+            <div className="flex">
+              <button
+                className="flex-none border-b-2 border-r-2 border-gray-500 w-1/2 bg-purple text-center"
+                type="button"
+                onClick={() => setOrder("AZ")}>
+                A-Z
+              </button>
+              <button
+                className="flex-none border-b-2 border-gray-500 w-1/2 bg-purple text-center"
+                type="button"
+                onClick={() => setOrder("ZA")}>
+                Z-A
+              </button>
+            </div>
+
             <button
-              className="flex-none border-b-2 border-r-2 border-gray-500 w-1/2 bg-purple text-center"
+              className="flex-none border-b-2 border-gray-500 w-full bg-purple text-center"
               type="button"
-              onClick={() => setOrder("AZ")}>
-              A-Z
+              onClick={() => setOrder("ing")}>
+              # of ingredients
             </button>
             <button
-              className="flex-none border-b-2 border-gray-500 w-1/2 bg-purple text-center"
+              className=" bg-purple text-center"
               type="button"
-              onClick={() => setOrder("ZA")}>
-              Z-A
+              onClick={() => setOrder("inst")}>
+              # of instructions
             </button>
           </div>
 
-          <button
-            className="flex-none border-b-2 border-gray-500 w-full bg-purple text-center"
-            type="button"
-            onClick={() => setOrder("ing")}>
-            # of ingredients
-          </button>
-          <button
-            className=" bg-purple text-center"
-            type="button"
-            onClick={() => setOrder("inst")}>
-            # of instructions
-          </button>
+          <ul className="contents">
+            {recipes.map((recipe) => {
+              return (
+                <li key={recipe._id}>
+                  <RecipeCard recipe={recipe} />
+                </li>
+              );
+            })}
+          </ul>
         </div>
-
-        <ul className="contents">
-          {recipes.map((recipe) => {
-            return (
-              <li key={recipe._id}>
-                <RecipeCard recipe={recipe} />
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      </main>
     );
   } else {
     return <h1>please sign in</h1>;

@@ -72,7 +72,9 @@ const RecipeCard = ({
           className="z-25 stroke-2 text-cream font-bold  bg-black  p-1 h-8 self-end"
           onClick={() => setShowModal(true)}
         />
-        <h3 className="text-2xl font-semibold pl-2">{recipe.title}</h3>
+        <h3 className="text-2xl font-semibold pl-2 w-full overflow-hidden ">
+          {recipe.title}
+        </h3>
         <ul className=" mb-4 h-1/2 list-disc">
           {ingredientPreview.map((form, index) => {
             return (

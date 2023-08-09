@@ -162,7 +162,7 @@ export default function RecipeForm() {
       const result = await response.json();
       console.log(result);
 
-      setTitle(link);
+      setTitle("");
       setSource(result.source);
       setIngredients(result.ingredients);
       setInstructions(result.instructions);
