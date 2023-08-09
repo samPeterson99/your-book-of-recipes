@@ -37,8 +37,7 @@ export default async function handler(
 function toTitleCase(string: string) {
   const newString = string
     .split(" ")
-    .map((w) => w[0].toUpperCase + w.substring(1).toLowerCase())
+    .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
     .join(" ");
   return newString;
-  console.log(newString);
 }
