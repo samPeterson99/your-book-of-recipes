@@ -5,6 +5,7 @@ import { useState } from "react";
 
 const RecipeCard = ({
   recipe,
+  onDelete,
 }: {
   recipe: {
     _id: string;
@@ -13,6 +14,7 @@ const RecipeCard = ({
     ingredients: string[];
     instructions: string[];
   };
+  onDelete: () => void;
 }) => {
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
@@ -22,56 +24,37 @@ const RecipeCard = ({
   const ingredientPreview: string[] = recipe.ingredients.slice(0, 3);
   const ingredientLength: number = recipe.ingredients.length;
 
-  async function deleteRecipe(recipeId: string) {
-    setShowModal(false);
-    const endpoint: string = `/api/deleteRecipe/${recipeId}`;
-
-    //need to figure out type
-    const response = await fetch(endpoint);
-
-    const result: [] = await response.json();
-    router.push("/dashboard");
-  }
-
-  if (showModal) {
-    return (
-      <div className="h-full w-full z-50">
-        <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-          <div className="relative w-auto my-6 mx-auto max-w-3xl">
-            <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-              <p className="w-48 px-2 py-4 text-center self-center">
-                <em className="text-red-500">Are you sure</em> you want do
-                delete this recipe? Once it is deleted, it is gone for good
-                &#40;at least from here&#41;{" "}
-              </p>
-              <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
-                <button
-                  className="text-black background-transparent font-bold uppercase px-6 py-2 text-sm  mr-1 mb-1"
-                  type="button"
-                  onClick={() => setShowModal(false)}>
-                  Nevermind
-                </button>
-                <button
-                  className="text-white bg-darkGreen font-bold uppercase text-sm px-6 py-3 rounded outline-none focus:outline-none mr-1 mb-1"
-                  type="button"
-                  onClick={() => deleteRecipe(recipe._id)}>
-                  Yup!
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="contents">
-      <div className="flex flex-col h-full rounded border-4 border-black justify-between">
-        <XMarkIcon
-          className="z-25 stroke-2 text-cream font-bold  bg-black  p-1 h-8 self-end"
-          onClick={() => setShowModal(true)}
-        />
+      <div className="flex flex-col h-full rounded border-4 border-black justify-between cursor-pointer">
+        {showModal ? (
+          <div className="flex flex-row">
+            <div className="flex flex-col w-1/2">
+              <em>Delete?</em>
+              <p>Are you sure?</p>
+            </div>
+            <button
+              type="button"
+              className="bg-green w-1/4"
+              onClick={() => {
+                onDelete();
+              }}>
+              Y
+            </button>
+            <button
+              type="button"
+              className="bg-red-400 w-1/4"
+              onClick={() => setShowModal(false)}>
+              N
+            </button>
+          </div>
+        ) : (
+          <XMarkIcon
+            className="z-25 stroke-2 text-cream font-bold  bg-black  p-1 h-8 self-end"
+            onClick={() => setShowModal(true)}
+          />
+        )}
+
         <h3 className="text-2xl font-semibold pl-2 w-full overflow-hidden ">
           {recipe.title}
         </h3>

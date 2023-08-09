@@ -10,9 +10,9 @@ import { useState } from "react";
 import { NextPageContext } from "next";
 
 export default function Dashboard({
-  recipes,
+  propRecipes,
 }: {
-  recipes: {
+  propRecipes: {
     _id: string;
     title: string;
     source?: string;
@@ -23,10 +23,13 @@ export default function Dashboard({
   const { data: session, status } = useSession();
   const [search, setSearch] = useState("");
   const [order, setOrder] = useState("");
+  const [recipes, setRecipes] = useState(propRecipes);
   const router = useRouter();
 
+  let displayRecipes = recipes;
+
   if (search !== "") {
-    recipes = recipes.filter((recipe) => {
+    displayRecipes = recipes.filter((recipe) => {
       return (
         recipe.title.includes(search) ||
         recipe.ingredients.find((ing) => ing.includes(search)) ||
@@ -36,36 +39,36 @@ export default function Dashboard({
   }
   console.log(order);
   if (order === "AZ") {
-    recipes.sort((a, b) =>
+    displayRecipes.sort((a, b) =>
       a.title.toLowerCase() > b.title.toLowerCase() ? 1 : -1
     );
   } else if (order === "ZA") {
-    recipes.sort((a, b) =>
+    displayRecipes.sort((a, b) =>
       b.title.toLowerCase() > a.title.toLowerCase() ? 1 : -1
     );
   } else if (order === "ing") {
-    recipes.sort((a, b) =>
+    displayRecipes.sort((a, b) =>
       a.ingredients.length > b.ingredients.length ? 1 : -1
     );
   } else if (order === "inst") {
-    recipes.sort((a, b) =>
+    displayRecipes.sort((a, b) =>
       a.instructions.length > b.instructions.length ? 1 : -1
     );
   }
 
-  console.log(recipes);
+  const deleteRecipe = async (recipeId: string) => {
+    let filteredRecipes = recipes.filter((item) => item._id !== recipeId);
 
-  async function deleteRecipe(recipeId: string) {
-    recipes = recipes.filter((item) => item._id !== recipeId);
+    setRecipes(filteredRecipes);
 
     const endpoint = `/api/deleteRecipe/${recipeId}`;
 
     const response = await fetch(endpoint);
 
     const result = await response.json();
-    console.log(router);
+
     router.asPath;
-  }
+  };
 
   //move delete button to card
 
@@ -129,10 +132,13 @@ export default function Dashboard({
           </div>
 
           <ul className="contents">
-            {recipes.map((recipe) => {
+            {displayRecipes.map((recipe) => {
               return (
                 <li key={recipe._id}>
-                  <RecipeCard recipe={recipe} />
+                  <RecipeCard
+                    recipe={recipe}
+                    onDelete={() => deleteRecipe(recipe._id)}
+                  />
                 </li>
               );
             })}
@@ -169,7 +175,7 @@ export async function getServerSideProps(context: NextPageContext) {
       .toArray();
 
     return {
-      props: { recipes: JSON.parse(JSON.stringify(recipes)) },
+      props: { propRecipes: JSON.parse(JSON.stringify(recipes)) },
     };
   } catch (e) {
     console.log(e);
