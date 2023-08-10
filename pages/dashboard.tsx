@@ -132,16 +132,29 @@ export default function Dashboard({
           </div>
 
           <ul className="contents">
-            {displayRecipes.map((recipe) => {
-              return (
-                <li key={recipe._id}>
-                  <RecipeCard
-                    recipe={recipe}
-                    onDelete={() => deleteRecipe(recipe._id)}
-                  />
-                </li>
-              );
-            })}
+            {recipes.length > 0 ? (
+              displayRecipes.map((recipe) => {
+                return (
+                  <li key={recipe._id}>
+                    <RecipeCard
+                      recipe={recipe}
+                      onDelete={() => deleteRecipe(recipe._id)}
+                    />
+                  </li>
+                );
+              })
+            ) : (
+              <div className="flex flex-col h-full rounded border-4 border-black">
+                <h3 className="text-2xl font-semibold pl-2 w-full overflow-hidden ">
+                  It is looking a little empty in here...
+                </h3>
+                <button
+                  className="mt-4 bg-purple font-bold"
+                  type="button">
+                  Add starter recipes?
+                </button>
+              </div>
+            )}
           </ul>
         </div>
       </main>
