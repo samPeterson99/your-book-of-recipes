@@ -5,15 +5,16 @@
 import * as cheerio from "cheerio";
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default async function playwright(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
     console.log(req.body.link);
     const url: string = req.body.link;
-    if (!url) {
-      return res.status(400).json({ data: "Incomplete recipe" });
+    const checkURL = new URL(url);
+    if (!url && !checkURL) {
+      return res.status(400).json({ error: "Incomplete recipe" });
     }
 
     const scriptContent = await getScriptContent(url);
@@ -46,6 +47,7 @@ export default async function playwright(
     res.json(recipe);
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 
@@ -79,7 +81,9 @@ function findAllTexts(arr: object[]) {
 
   for (let obj of arr) {
     for (let key in obj) {
-      if (key === "text") array.push(obj[key]);
+      if (key === "text") {
+        array.push(obj[key].replace(new RegExp("&nbsp;", "g"), " "));
+      }
     }
   }
 

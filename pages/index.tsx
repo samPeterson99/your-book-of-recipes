@@ -24,6 +24,7 @@ export default function Home() {
           url = new URL(link);
         } catch (e) {
           console.log("error");
+          setPageState("error");
         }
 
         const object = {
@@ -40,15 +41,20 @@ export default function Home() {
           },
           body: json,
         };
-        console.log("fetch");
-        const response = await fetch(endpoint, options);
 
+        const response = await fetch(endpoint, options);
+        console.log("fetch");
         const result = await response.json();
-        setPageState("used");
-        setIngredients(result.ingredients);
-        setInstructions(result.instructions);
         console.log(result);
+        if (response.status === 200) {
+          setPageState("used");
+          setIngredients(result.ingredients);
+          setInstructions(result.instructions);
+        } else {
+          throw new Error("No recipe found");
+        }
       } catch (e) {
+        setPageState("error");
         console.error(e);
       }
     }
@@ -86,12 +92,13 @@ export default function Home() {
         <div className="flex flex-row w-full self-center">
           <label
             htmlFor="link"
-            className="labelLeft justify-self-start">
+            className="labelLeft justify-self-start p-1 leading-7">
             Link:
           </label>
           <input
-            className="inputBoxLeft w-full"
+            className="inputBoxLeft w-full p-1"
             name="link"
+            id="link"
             type="text"
             onChange={(event) => setLink(event.target.value)}
           />
@@ -111,11 +118,18 @@ export default function Home() {
             Loading...
           </button>
         )}
+        {pageState === "error" && (
+          <button
+            className=" cursor-wait flex-none w-3/5 self-center border-2 col-start-1 mb-2 bg-white"
+            type="button">
+            This is not a valid link. <br></br> Refresh the page to try again.
+          </button>
+        )}
         {pageState === "used" && (
           <button
             className="cursor-auto flex-none w-1/2 self-center border-2 col-start-1 mb-2 border-black bg-yellow-300"
             type="button">
-            Sign in to scan more and save them
+            Sign in to start saving recipes
           </button>
         )}
       </div>
