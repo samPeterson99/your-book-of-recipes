@@ -18,6 +18,10 @@ export default async function handler(
       return res.status(400).json({ data: "Incomplete recipe" });
     }
 
+    console.log(title);
+    console.log(source), console.log(ingredients);
+    console.log(instructions);
+
     const userId: string | undefined = session?.user?.id;
 
     const post = await db.collection(`${userId}`).insertOne({

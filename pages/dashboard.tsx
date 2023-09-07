@@ -26,6 +26,7 @@ export default function Dashboard({
   const [recipes, setRecipes] = useState(propRecipes);
   const router = useRouter();
 
+  console.log(recipes);
   let displayRecipes = recipes;
 
   if (search !== "") {
@@ -55,6 +56,16 @@ export default function Dashboard({
       a.instructions.length > b.instructions.length ? 1 : -1
     );
   }
+
+  const addStarterRecipes = async () => {
+    const endpoint = "api/addStarterRecipes";
+
+    const response = await fetch(endpoint);
+    let starterRecipes = await response.json();
+
+    console.log(recipes);
+    setRecipes(starterRecipes);
+  };
 
   const deleteRecipe = async (recipeId: string) => {
     let filteredRecipes = recipes.filter((item) => item._id !== recipeId);
@@ -150,7 +161,8 @@ export default function Dashboard({
                 </h3>
                 <button
                   className="mt-4 bg-purple font-bold"
-                  type="button">
+                  type="button"
+                  onClick={addStarterRecipes}>
                   Add starter recipes?
                 </button>
               </div>

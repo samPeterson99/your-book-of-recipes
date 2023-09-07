@@ -101,35 +101,9 @@ export default function RecipeForm() {
     router.push("/dashboard");
   };
 
-  //the attempt structure is not working correctly
-  //also can't be in global namespace
-  let attempt = 0;
-  let prevLink: string;
-
-  function getAttempt(link: string) {
-    if (link === prevLink) {
-      attempt++;
-    } else {
-      prevLink = link;
-      attempt++;
-      attempt = 1;
-    }
-    console.log(attempt);
-
-    return attempt;
-  }
-
   const getRecipe = async () => {
     console.log(link);
-    let attempt = getAttempt(link);
-    if (attempt > 2) {
-      throw new Error("Too many attempts with this link");
-    }
     try {
-      if (attempt > 2) {
-        throw new Error();
-      }
-
       setErrors([]);
       let url;
       try {
@@ -158,26 +132,22 @@ export default function RecipeForm() {
       };
       console.log("fetch");
       const response = await fetch(endpoint, options);
-
       const result = await response.json();
-      console.log(result);
 
-      setTitle("");
-      setSource(result.source);
-      setIngredients(result.ingredients);
-      setInstructions(result.instructions);
-      setWarning("");
-    } catch (e) {
-      console.log(e);
-      if (attempt === 1) {
-        setWarning("Something went wrong. Maybe try again.");
-      } else if (attempt === 2) {
-        setWarning(
-          "This link isn't working. You'll have to manually transfer it :("
-        );
+      if (response.status === 200) {
+        setTitle("");
+        setSource(result.source);
+        setIngredients(result.ingredients);
+        setInstructions(result.instructions);
+        setWarning("");
       } else {
-        setWarning("Let's try a different link");
+        throw new Error("Unable to find complete recipe");
       }
+    } catch (e) {
+      setWarning(
+        "Unable to find recipe. Type the recipe or try a different link."
+      );
+      console.log(e);
     }
   };
 
@@ -233,8 +203,7 @@ export default function RecipeForm() {
           <ul>
             {warning !== "" && (
               <li className="warningSign flex">
-                <ExclamationTriangleIcon className="h-4  px-4 mx-4" />
-                <p>{warning}</p>
+                <p className="h-auto  px-4 mx-4">{warning}</p>
               </li>
             )}
           </ul>
@@ -244,8 +213,9 @@ export default function RecipeForm() {
                 <li
                   className="errorSign flex"
                   key={index}>
-                  <ExclamationTriangleIcon className="h-4  px-4 mx-4" />
-                  <p>{error}</p>
+                  <p className="h-auto py-px px-2 mx-4">
+                    <b>Error:</b> {error}
+                  </p>
                 </li>
               );
             })}
@@ -307,7 +277,7 @@ export default function RecipeForm() {
                 className="flex flex-row my-1 items-center"
                 key={index}>
                 <input
-                  className="inputBox"
+                  className="ingredientBox"
                   name="ingredient"
                   value={form}
                   onChange={(event) => handleIngredientChange(event, index)}

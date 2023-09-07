@@ -62,9 +62,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center">
-      <h1 className="mt-20 text-4xl font-bold">
-        Welcome to Your Book of Recipes
-      </h1>
+      <h1 className="mt-10 text-4xl font-bold">Your Book of Recipes</h1>
       <section>
         <br />
         <div className="dotted-background flex flex-row">
