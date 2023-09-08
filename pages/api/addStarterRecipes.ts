@@ -95,10 +95,10 @@ export default async function handler(
         "salt and pepper",
       ],
       instructions: [
-        "Preheat the oven to 375&deg;F. Combine the hot sauce, butter, vinegar, and garlic in  small bowl",
+        "Preheat the oven to 375°F. Combine the hot sauce, butter, vinegar, and garlic in  small bowl",
         "Put the chicken wings in a large rosting pan, drizzle with the oil, and sprinkle liberally with salt and pepper. Toss to coat, then spread the wings out in a single layer. (It's okay if they are crowded; they'll shrink Roast the wings undistrubed until the bottom of the pan is coated with fat and the wings are beginning to brown, about 30 minutes. Use a spoon to baste the wings with the drippings, then carefully pour or spoon the fat out of the pan. If the wings are stil sticking to the bottom of the pan, return them to the oven for another 5 or 10 minutes, until they release easily",
         "Turn the wings over, baste again, then carefully spoon out any remaining fat. Return the wings to the oven until nicely browned, another 20 minutes or so. Again, make sure they release easily from the pan",
-        "Raise the oven temperature to 450&deg;F. Carefully pour off any accumulated fat, then drizzle the wings with the hot sauce mixture and toss to coat. Spread them back out into a single layer and return them to the oven. Roast, tossing onces or twice, until crips all over, about 10 more minutes. Serve hot or at room temperature.",
+        "Raise the oven temperature to 450°F. Carefully pour off any accumulated fat, then drizzle the wings with the hot sauce mixture and toss to coat. Spread them back out into a single layer and return them to the oven. Roast, tossing onces or twice, until crips all over, about 10 more minutes. Serve hot or at room temperature.",
       ],
       _id: "temp1",
     },

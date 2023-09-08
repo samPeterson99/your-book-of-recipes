@@ -29,7 +29,7 @@ export default function RecipePage({
           )}
           <hr className="border-black my-4 w-full shadow col-start-1"></hr>
           <Link
-            className="flex-none border-2 col-start-1 w-1/2 bg-purple"
+            className="flex-none border-2 text-center col-start-1 w-1/2 bg-purple"
             href={{
               pathname: `/editRecipe`,
               query: {
