@@ -55,7 +55,7 @@ const RecipeCard = ({
           />
         )}
 
-        <h3 className="mt-10 mb-2 text-xl font-semibold pl-2 pb-0 w-full overflow-hidden ">
+        <h3 className="mt-12 mb-4 text-xl font-semibold pl-2 pb-0 w-full overflow-hidden ">
           {recipe.title}
         </h3>
         <ul className="mb-12 h-1/2 list-disc">
