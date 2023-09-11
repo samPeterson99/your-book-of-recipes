@@ -7,7 +7,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="pageContainer">
       <Nav />
-      <main className="h-full">{children}</main>
+      <main className="h-full min-h-screen">{children}</main>
     </div>
   );
 }

@@ -24,12 +24,18 @@ a {
 
 .pageContainer {
   width: 100%;
+  min-height: 100%;
   background-color: #e5e5f7;
   background-image:  radial-gradient(black 0.5px, transparent 0.5px), radial-gradient(black 0.5px, white 0.5px);
   background-size: 20px 20px;
   background-position: 0 0,10px 10px;
 }
 
+.linkButton {
+  cursor: pointer;
+  text-align: center;
+  padding: 1px;
+}
 
 .warningSign {
   color: black;

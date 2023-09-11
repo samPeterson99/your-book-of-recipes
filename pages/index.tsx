@@ -1,6 +1,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -61,10 +62,25 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center">
-      <h1 className="mt-10 text-4xl font-bold">Your Book of Recipes</h1>
+    <main className="flex flex-col items-center h-full lg:max-w-4xl lg:mx-auto xl:max-w-4xl xl:mx-auto">
+      <h1 className="mt-10 text-4xl font-bold">
+        Skip the story. Get the recipe.
+      </h1>
       <section>
         <br />
+        <div className="dotted-background flex flex-row">
+          <div className="mt-6 ml-24 h-5/6 w-1/2 p-4 pl-10 bg-purple">
+            <p>Want the recipe and not someone&lsquo;s life story?</p>
+          </div>
+          <div className="w-1/2 p-6 mt-20 mr-24 -ml-8 bg-yellow-300">
+            <p>
+              Just copy and paste the URL of the recipe into the box, click
+              &lsquo;Get Recipe&lsquo;, and save yourself some scrolling.
+            </p>
+          </div>
+        </div>
+        <br />
+        {/* <br />
         <div className="dotted-background flex flex-row">
           <div className="mt-6 ml-24 h-5/6 w-1/2 p-8 bg-purple">
             <p>
@@ -80,18 +96,15 @@ export default function Home() {
             </p>
           </div>
         </div>
-        <br />
+        <br /> */}
       </section>
 
-      <div className="flex flex-col mt-10">
-        <h3 className="text-2xl font-semibold self-center">
-          Try out the Get Recipe function
-        </h3>
-        <div className="flex flex-row w-full self-center">
+      <div className="flex flex-col mt-4 w-full items-center">
+        <div className="flex flex-row w-1/2">
           <label
             htmlFor="link"
             className="labelLeft justify-self-start p-1 leading-7">
-            Link:
+            URL:
           </label>
           <input
             className="inputBoxLeft w-full p-1"
@@ -101,54 +114,79 @@ export default function Home() {
             onChange={(event) => setLink(event.target.value)}
           />
         </div>
-        {pageState === "unused" && (
-          <button
-            className="flex-none w-1/2 self-center border-2 col-start-1 mb-2 bg-purple"
-            type="button"
-            onClick={getRecipe}>
-            Get recipe from link
-          </button>
-        )}
-        {pageState === "loading" && (
-          <button
-            className=" cursor-wait flex-none w-1/2 self-center border-2 col-start-1 mb-2 bg-white"
-            type="button">
-            Loading...
-          </button>
-        )}
-        {pageState === "error" && (
-          <button
-            className=" cursor-wait flex-none w-3/5 self-center border-2 col-start-1 mb-2 bg-white"
-            type="button">
-            This is not a valid link. <br></br> Refresh the page to try again.
-          </button>
-        )}
-        {pageState === "used" && (
-          <button
-            className="cursor-auto flex-none w-1/2 self-center border-2 col-start-1 mb-2 border-black bg-yellow-300"
-            type="button">
-            Sign in to start saving recipes
-          </button>
-        )}
+        <div className="w-1/2">
+          {pageState === "unused" && (
+            <button
+              className="w-full border-2 border-black bg-purple"
+              type="button"
+              onClick={getRecipe}>
+              Click here for your recipe
+            </button>
+          )}
+          {pageState === "loading" && (
+            <button
+              className=" cursor-wait w-full border-2 border-gray-500 bg-white"
+              type="button">
+              Loading...
+            </button>
+          )}
+          {pageState === "error" && (
+            <button
+              className=" cursor-wait w-full border-2 border-gray-500 bg-red-100"
+              type="button">
+              This is not a valid recipe link. <br></br> Refresh the page to try
+              again.
+            </button>
+          )}
+          {pageState === "used" && (
+            <div className="flex flex-row mt-2 justify-center">
+              <Link
+                href="/signin"
+                className="cursor-pointer text-center py-px px-2 w-1/2 border-black border-2 bg-yellow-300 -mx-1"
+                type="button">
+                Sign in to start saving recipes
+              </Link>
+              <p className="w-10 text-center pt-3 -mx-1">or</p>
+              <Link
+                href="/getRecipe"
+                className="cursor-pointer text-center py-px px-2 w-1/2  border-black border-2  bg-yellow-300 -mx-1"
+                type="button">
+                Go to the Get Recipe page
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
       <div className="flex flex-col mt-10">
         <div className="page">
-          <div className="pageLeft mb-10">
-            <ul className=" h-full px-6 list-disc bg-yellow-300">
-              {ingredients.length > 0 &&
-                ingredients.map((content, index) => {
-                  return <li key={index}>{content}</li>;
-                })}
-            </ul>
-          </div>
-          <div className="pageRight mb-10">
-            <ol className="px-6 bg-purple list-decimal">
-              {instructions.length > 0 &&
-                instructions.map((content, index) => {
-                  return <li key={index}>{content}</li>;
-                })}
-            </ol>
-          </div>
+          {ingredients.length > 0 && (
+            <div className="pageLeft mb-10">
+              <h4 className="text-center bg-yellow-300 text-2xl">
+                ingredients
+              </h4>
+              <ul className="pb-4 h-full px-6 bg-yellow-300 list-disc ">
+                {ingredients.length > 0 &&
+                  ingredients.map((content, index) => {
+                    return <li key={index}>{content}</li>;
+                  })}
+              </ul>
+            </div>
+          )}
+          {ingredients.length > 0 && (
+            <div className="pageRight mb-10">
+              <ol className="px-6 border-2 bg-purple  list-decimal">
+                {instructions.length > 0 && (
+                  <h4 className="text-center bg-purple text-2xl">
+                    instructions
+                  </h4>
+                )}
+                {instructions.length > 0 &&
+                  instructions.map((content, index) => {
+                    return <li key={index}>{content}</li>;
+                  })}
+              </ol>
+            </div>
+          )}
         </div>
       </div>
     </main>

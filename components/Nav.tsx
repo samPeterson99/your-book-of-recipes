@@ -42,7 +42,7 @@ export default function Nav() {
           </button>
         ) : (
           <button
-            className="flex-none"
+            className="flex-none border-2 p-2 rounded-2xl border-darkGreen hover:bg-cream hover:text-green"
             onClick={redirectToSignIn}>
             Sign in
           </button>
