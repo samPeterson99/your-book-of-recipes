@@ -11,10 +11,6 @@ export default function Home() {
   const [instructions, setInstructions] = useState([]);
   const router = useRouter();
 
-  if (session && session.user) {
-    router.push("/dashboard");
-  }
-
   const getRecipe = async () => {
     console.log(link);
     if (link !== "") {
@@ -141,7 +137,7 @@ export default function Home() {
           {pageState === "used" && (
             <div className="flex flex-row mt-2 justify-center">
               <Link
-                href="/signin"
+                href={session && session.user ? "/dashboard" : "/signin"}
                 className="cursor-pointer text-center py-px px-2 w-1/2 border-black border-2 bg-yellow-300 -mx-1"
                 type="button">
                 Sign in to start saving recipes
