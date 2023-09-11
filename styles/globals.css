@@ -41,6 +41,7 @@ a {
   color: black;
   border: 1px solid darkred;
   background-color: yellow;
+  text-align: center;
   font-size: 12px;
   margin-bottom: 2px;
   padding: 0px 4px;
@@ -51,6 +52,7 @@ a {
   color: black;
   border: 1px solid darkred;
   background-color: red;
+  text-align: center;
   font-size: 12px;
   margin-bottom: 2px;
   padding: 0px 4px;
