@@ -28,10 +28,12 @@ const RecipeCard = ({
     <div className="contents">
       <div className="block relative h-full rounded border-4 border-black  cursor-pointer">
         {showModal ? (
-          <div className="absolute top-0 w-full h-9 mb-4 flex flex-row  text-sm ">
+          <div className="absolute border-b-2 top-0 w-full h-9 mb-4 flex flex-row  text-sm ">
             <div className="pl-2 flex flex-col w-1/2">
-              <em>Delete?</em>
-              <p>Are you sure?</p>
+              <p className="font-bold -mb-1 sm:mt-1 sm:text-xl md:text-sm md:mt-0">
+                Delete?
+              </p>
+              <p className="md:block sm:hidden">Are you sure?</p>
             </div>
             <button
               type="button"
