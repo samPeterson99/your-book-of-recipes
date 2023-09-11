@@ -5,7 +5,6 @@ import Link from "next/link";
 
 export default function RecipePage() {
   const blankArray = ["", "", "", "", ""];
-  const emptyArray: string[] = [];
 
   const [title, setTitle] = useState("");
   const [source, setSource] = useState("");
@@ -74,7 +73,7 @@ export default function RecipePage() {
             )}
           </ul>
 
-          <h1 className="labelLeft">Title:</h1>
+          <h1 className="labelLeft">URL:</h1>
           <input
             className="inputBoxLeft w-10/12"
             name="link"

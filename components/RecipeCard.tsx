@@ -57,7 +57,7 @@ const RecipeCard = ({
           />
         )}
 
-        <h3 className="mt-12 mb-4 text-xl font-semibold pl-2 pb-0 w-full overflow-hidden ">
+        <h3 className="mt-10 mb-4 text-xl font-semibold pl-2 pb-0 w-full overflow-hidden ">
           {recipe.title}
         </h3>
         <ul className="mb-12 h-1/2 list-disc">
@@ -88,7 +88,7 @@ const RecipeCard = ({
             },
           }}
           className="absolute bottom-0 border-y-2 w-full bg-yellow-300 pl-2 border-gray-400">
-          Click for recipe
+          Click for Recipe
         </Link>
       </div>
     </div>
