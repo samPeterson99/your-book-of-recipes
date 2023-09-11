@@ -14,7 +14,9 @@ export default function Nav() {
   return (
     <div className="max-w-full container bg-darkGreen text-cream">
       <div className="flex justify-between p-2 items-center">
-        <h4 className="font-bold text-l -mr-28 flex-none">YOURBOOKofRECIPES</h4>
+        <h4 className="font-bold text-l sm:text-sm -mr-28  sm:mr-0 flex-none">
+          YOURBOOKofRECIPES
+        </h4>
         <ul className="flex-none">
           <li>
             <Link href="/dashboard">

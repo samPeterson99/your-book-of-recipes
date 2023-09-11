@@ -84,7 +84,7 @@ export default function Dashboard({
   //move delete button to card
 
   if (status === "loading") {
-    return <h1>loading</h1>;
+    return <h1></h1>;
   } else if (status === "authenticated") {
     return (
       <main className="h-full min-h-screen">

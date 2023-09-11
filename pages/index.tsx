@@ -62,17 +62,17 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center h-full lg:max-w-4xl lg:mx-auto xl:max-w-4xl xl:mx-auto">
-      <h1 className="mt-10 text-4xl font-bold">
+    <main className="flex flex-col items-center h-full lg:max-w-4xl lg:mx-auto xl:max-w-4xl xl:mx-auto sm:overflow-hidden">
+      <h1 className="mt-10 text-4xl sm:text-2xl font-bold">
         Skip the story. Get the recipe.
       </h1>
       <section>
         <br />
         <div className="dotted-background flex flex-row">
-          <div className="mt-6 ml-24 h-5/6 w-1/2 p-4 pl-10 bg-purple">
+          <div className="mt-6 ml-24 sm:ml-10 h-5/6 w-1/2 p-4 pl-10 sm:pl-4 bg-purple">
             <p>Want the recipe and not someone&lsquo;s life story?</p>
           </div>
-          <div className="w-1/2 p-6 mt-20 mr-24 -ml-8 bg-yellow-300">
+          <div className="w-2/3 p-6 mt-20 sm:mt-32 mr-24 sm:mr-10 -ml-8 bg-yellow-300">
             <p>
               Just copy and paste the URL of the recipe into the box, click
               &lsquo;Get Recipe&lsquo;, and save yourself some scrolling.
@@ -100,7 +100,7 @@ export default function Home() {
       </section>
 
       <div className="flex flex-col mt-4 w-full items-center">
-        <div className="flex flex-row w-1/2">
+        <div className="flex flex-row w-1/2 sm:w-4/5">
           <label
             htmlFor="link"
             className="labelLeft justify-self-start p-1 leading-7">
@@ -114,7 +114,7 @@ export default function Home() {
             onChange={(event) => setLink(event.target.value)}
           />
         </div>
-        <div className="w-1/2">
+        <div className="w-1/2 sm:w-4/5">
           {pageState === "unused" && (
             <button
               className="w-full border-2 border-black bg-purple"
@@ -157,10 +157,10 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div className="flex flex-col mt-10">
+      <div className="flex flex-col mt-10 sm:mt-4">
         <div className="page">
           {ingredients.length > 0 && (
-            <div className="pageLeft mb-10">
+            <div className="pageLeft mb-10 sm:mb-4">
               <h4 className="text-center bg-yellow-300 text-2xl">
                 ingredients
               </h4>
