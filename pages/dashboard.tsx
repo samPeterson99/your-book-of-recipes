@@ -9,6 +9,14 @@ import { redirect } from "next/dist/server/api-utils";
 import { useState } from "react";
 import { NextPageContext } from "next";
 
+enum DisplayOrder {
+  AtoZ,
+  ZtoA,
+  NumberOfIngredients,
+  NumberOfInstructions,
+  Default,
+}
+
 export default function Dashboard({
   propRecipes,
 }: {
@@ -22,12 +30,11 @@ export default function Dashboard({
 }) {
   const { data: session, status } = useSession();
   const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("");
+  const [order, setOrder] = useState(DisplayOrder.Default);
   const [recipes, setRecipes] = useState(propRecipes);
   const router = useRouter();
-
   console.log(recipes);
-  let displayRecipes = recipes;
+  let displayRecipes = [...recipes];
 
   if (search !== "") {
     displayRecipes = recipes.filter((recipe) => {
@@ -38,20 +45,19 @@ export default function Dashboard({
       );
     });
   }
-  console.log(order);
-  if (order === "AZ") {
+  if (order === DisplayOrder.AtoZ) {
     displayRecipes.sort((a, b) =>
       a.title.toLowerCase() > b.title.toLowerCase() ? 1 : -1
     );
-  } else if (order === "ZA") {
+  } else if (order === DisplayOrder.ZtoA) {
     displayRecipes.sort((a, b) =>
       b.title.toLowerCase() > a.title.toLowerCase() ? 1 : -1
     );
-  } else if (order === "ing") {
+  } else if (order === DisplayOrder.NumberOfIngredients) {
     displayRecipes.sort((a, b) =>
       a.ingredients.length > b.ingredients.length ? 1 : -1
     );
-  } else if (order === "inst") {
+  } else if (order === DisplayOrder.NumberOfInstructions) {
     displayRecipes.sort((a, b) =>
       a.instructions.length > b.instructions.length ? 1 : -1
     );
@@ -63,7 +69,6 @@ export default function Dashboard({
     const response = await fetch(endpoint);
     let starterRecipes = await response.json();
 
-    console.log(recipes);
     setRecipes(starterRecipes);
   };
 
@@ -119,13 +124,13 @@ export default function Dashboard({
               <button
                 className="flex-none border-b-2 border-r-2 border-gray-500 w-1/2 bg-purple text-center"
                 type="button"
-                onClick={() => setOrder("AZ")}>
+                onClick={() => setOrder(DisplayOrder.AtoZ)}>
                 A-Z
               </button>
               <button
                 className="flex-none border-b-2 border-gray-500 w-1/2 bg-purple text-center"
                 type="button"
-                onClick={() => setOrder("ZA")}>
+                onClick={() => setOrder(DisplayOrder.ZtoA)}>
                 Z-A
               </button>
             </div>
@@ -133,13 +138,13 @@ export default function Dashboard({
             <button
               className="flex-none border-b-2 border-gray-500 w-full bg-purple text-center"
               type="button"
-              onClick={() => setOrder("ing")}>
+              onClick={() => setOrder(DisplayOrder.NumberOfIngredients)}>
               # of ingredients
             </button>
             <button
               className=" bg-purple text-center"
               type="button"
-              onClick={() => setOrder("inst")}>
+              onClick={() => setOrder(DisplayOrder.NumberOfInstructions)}>
               # of instructions
             </button>
           </div>
@@ -190,21 +195,15 @@ export async function getServerSideProps(context: NextPageContext) {
     };
   }
 
-  try {
-    const client = await clientPromise;
-    const db = client.db(`data`);
+  const client = await clientPromise;
+  const db = client.db(`data`);
 
-    console.log(session);
+  const recipes = await db
+    .collection(`${session?.user?.id}`)
+    .find({})
+    .toArray();
 
-    const recipes = await db
-      .collection(`${session?.user?.id}`)
-      .find({})
-      .toArray();
-
-    return {
-      props: { propRecipes: JSON.parse(JSON.stringify(recipes)) },
-    };
-  } catch (e) {
-    console.log(e);
-  }
+  return {
+    props: { propRecipes: JSON.parse(JSON.stringify(recipes)) },
+  };
 }

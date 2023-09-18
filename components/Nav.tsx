@@ -16,11 +16,14 @@ export default function Nav() {
       <div className="flex justify-between p-2 items-center">
         <Link
           href="/"
-          className="font-bold text-l sm:text-sm md:-mr-28  sm:mr-0 flex-none">
+          className="font-bold w-auto text-l sm:text-sm md:-mr-28  sm:mr-0 flex-none">
           YOURBOOKofRECIPES
         </Link>
-        <ul className="flex-none">
-          <li>
+        <ul className="flex flex-row min-w-max flex-auto justify-self-center justify-center">
+          <li className="text-sm w-16 sm:hidden lg:block mt-1 text-center">
+            <Link href="/blog">blog</Link>
+          </li>
+          <li className="w-fit justify-self-center text-center mx-10">
             <Link href="/dashboard">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -37,10 +40,13 @@ export default function Nav() {
               </svg>
             </Link>
           </li>
+          <li className="text-sm w-fit sm:hidden lg:block mt-1">
+            <Link href="/recipeScraper">recipe scraper</Link>
+          </li>
         </ul>
         {session && session.user ? (
           <button
-            className="flex-none border-2 p-2 rounded-2xl border-darkGreen hover:bg-cream hover:text-green"
+            className="flex-none border-2 p-2 rounded-2xl border-darkGreen hover:bg-cream hover:text-green justify-self-end"
             onClick={() => signOut()}>
             Sign out
           </button>

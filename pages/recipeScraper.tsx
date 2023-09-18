@@ -1,63 +1,60 @@
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import { z } from "zod";
 import { useState } from "react";
 import Link from "next/link";
 
-export default function RecipePage() {
-  const blankArray = ["", "", "", "", ""];
-
+export default function RecipeScraper() {
   const [title, setTitle] = useState("");
   const [source, setSource] = useState("");
-  const [ingredients, setIngredients] = useState(blankArray);
-  const [instructions, setInstructions] = useState(blankArray);
+  const [ingredients, setIngredients] = useState([]);
+  const [instructions, setInstructions] = useState([]);
   const [link, setLink] = useState("");
 
   const [warning, setWarning] = useState("");
 
+  const validateLinkAndFetch = () => {
+    const isUrl = z.string().url().safeParse(link);
+
+    if (!isUrl.success) {
+      return setWarning(
+        "This is not a valid link. Make sure to copy the whole URL."
+      );
+    }
+
+    getRecipe();
+  };
+
   const getRecipe = async () => {
-    console.log(link);
+    setWarning("This may take a minute...");
+
+    const object = {
+      link: link,
+    };
+
+    const json = JSON.stringify(object);
+    console.log(json);
+    const endpoint = "/api/getRecipeFromURL";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: json,
+    };
+
     try {
-      let url;
-      try {
-        url = new URL(link);
-      } catch (e) {
-        console.log("error");
-        return setWarning(
-          "This is not a valid link. Make sure to copy the whole URL."
-        );
-      }
-      setWarning("This may take a minute...");
-
-      const object = {
-        link: link,
-      };
-
-      const json = JSON.stringify(object);
-      console.log(json);
-      const endpoint = "/api/getRecipeFromURL";
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: json,
-      };
-      console.log("fetch");
       const response = await fetch(endpoint, options);
       const result = await response.json();
-
+      console.log("fetch");
       if (response.status === 200) {
         setTitle("");
         setSource(result.source);
         setIngredients(result.ingredients);
         setInstructions(result.instructions);
         setWarning("");
-      } else {
-        throw new Error("Unable to find recipe");
       }
     } catch (e) {
+      console.error(e);
       setWarning("Unable to find recipe. Try a different link.");
-      console.log(e);
     }
   };
 
@@ -83,9 +80,10 @@ export default function RecipePage() {
           <button
             className="border-2 col-start-1 w-10/12 my-1 bg-purple"
             type="button"
-            onClick={getRecipe}>
+            onClick={validateLinkAndFetch}>
             Get recipe from link
           </button>
+          {}
           <Link
             href="/signin"
             className="cursor-pointer text-center border-2 col-start-1 w-10/12 mb-2 bg-yellow-300 text-sm"

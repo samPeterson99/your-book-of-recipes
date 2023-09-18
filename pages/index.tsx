@@ -1,59 +1,64 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { z } from "zod";
 import { useState } from "react";
 import Link from "next/link";
+
+enum PageState {
+  unused,
+  error,
+  loading,
+  used,
+}
 
 export default function Home() {
   const { data: session, status } = useSession();
   const [link, setLink] = useState("");
-  const [pageState, setPageState] = useState("unused");
+  const [pageState, setPageState] = useState(PageState.unused);
   const [ingredients, setIngredients] = useState([]);
   const [instructions, setInstructions] = useState([]);
   const router = useRouter();
 
+  const validateLinkAndFetch = () => {
+    const isUrl = z.string().url().safeParse(link);
+
+    if (!isUrl.success) {
+      return setPageState(PageState.error);
+    }
+
+    getRecipe();
+  };
+
   const getRecipe = async () => {
-    console.log(link);
-    if (link !== "") {
-      setPageState("loading");
-      try {
-        let url;
-        try {
-          url = new URL(link);
-        } catch (e) {
-          console.log("error");
-          setPageState("error");
-        }
+    setPageState(PageState.loading);
 
-        const object = {
-          link: link,
-        };
+    const object = {
+      link: link,
+    };
 
-        const json = JSON.stringify(object);
-        console.log(json);
-        const endpoint = "/api/getRecipeFromURL";
-        const options = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: json,
-        };
+    const json = JSON.stringify(object);
 
-        const response = await fetch(endpoint, options);
-        console.log("fetch");
-        const result = await response.json();
-        console.log(result);
-        if (response.status === 200) {
-          setPageState("used");
-          setIngredients(result.ingredients);
-          setInstructions(result.instructions);
-        } else {
-          throw new Error("No recipe found");
-        }
-      } catch (e) {
-        setPageState("error");
-        console.error(e);
+    const endpoint = "/api/getRecipeFromURL";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: json,
+    };
+
+    try {
+      const response = await fetch(endpoint, options);
+      const result = await response.json();
+      console.log("fetch");
+      if (response.status === 200) {
+        setIngredients(result.ingredients);
+        setInstructions(result.instructions);
+        setPageState(PageState.used);
       }
+    } catch (e) {
+      console.error(e);
+      setPageState(PageState.error);
     }
   };
 
@@ -65,13 +70,17 @@ export default function Home() {
       <section>
         <br />
         <div className="dotted-background flex flex-row">
-          <div className="mt-6 md:ml-24 sm:ml-10 h-5/6 w-1/2 p-4 pl-10 sm:pl-4 bg-purple">
-            <p>Want the recipe and not someone&lsquo;s life story?</p>
-          </div>
-          <div className="w-2/3 p-6 md:mt-20 sm:mt-32 md:mr-24 sm:mr-10 -ml-8 bg-yellow-300">
+          <div className="mt-6 md:ml-24 sm:ml-10 h-5/6 w-2/3 p-4 pl-10 sm:pl-4 bg-purple z-50">
             <p>
+              {" "}
               Just copy and paste the URL of the recipe into the box, click
-              &lsquo;Get Recipe&lsquo;, and save yourself some scrolling.
+              &lsquo;Scrape Recipe&lsquo;, and save yourself some scrolling.
+            </p>
+          </div>
+          <div className="w-2/3 p-6 mt-36 md:mr-24 sm:mr-10 -ml-2 bg-yellow-300">
+            <p>
+              When you sign in to Your Book of Recipes, you can start saving
+              these recipes.
             </p>
           </div>
         </div>
@@ -111,22 +120,22 @@ export default function Home() {
           />
         </div>
         <div className="md:w-1/2 sm:w-4/5">
-          {pageState === "unused" && (
+          {pageState === PageState.unused && (
             <button
               className="w-full border-2 border-black bg-purple"
               type="button"
-              onClick={getRecipe}>
-              Click here for your recipe
+              onClick={validateLinkAndFetch}>
+              Scrape Recipe
             </button>
           )}
-          {pageState === "loading" && (
+          {pageState === PageState.loading && (
             <button
               className=" cursor-wait w-full border-2 border-gray-500 bg-white"
               type="button">
               Loading...
             </button>
           )}
-          {pageState === "error" && (
+          {pageState === PageState.error && (
             <button
               className=" cursor-wait w-full border-2 border-gray-500 bg-red-100"
               type="button">
@@ -134,7 +143,7 @@ export default function Home() {
               again.
             </button>
           )}
-          {pageState === "used" && (
+          {pageState === PageState.used && (
             <div className="flex flex-row mt-2 justify-center">
               <Link
                 href={session && session.user ? "/dashboard" : "/signin"}
@@ -144,10 +153,10 @@ export default function Home() {
               </Link>
               <p className="w-10 text-center pt-3 -mx-1">or</p>
               <Link
-                href="/getRecipe"
+                href="/recipeScraper"
                 className="cursor-pointer text-center py-px px-2 w-1/2  border-black border-2  bg-yellow-300 -mx-1"
                 type="button">
-                Go to the Get Recipe page
+                Go to the Recipe Scraper page
               </Link>
             </div>
           )}

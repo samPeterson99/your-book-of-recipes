@@ -73,18 +73,13 @@ export default function RecipePage({
 
 export async function getServerSideProps(context: NextPageContext) {
   try {
-    console.log(typeof context.query.id);
     const session = await getSession(context);
     const client = await clientPromise;
     const db = client.db(`data`);
 
-    console.log(session);
-
     const query = context?.query?.id as string;
 
     const _id = new mongoose.Types.ObjectId(query);
-
-    const userId = session?.user?.id as string;
 
     const recipes = await db.collection(`${session?.user?.id}`).findOne({
       _id: _id,

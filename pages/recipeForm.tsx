@@ -1,11 +1,11 @@
 import { useRouter } from "next/router";
 import {
-  ExclamationTriangleIcon,
   MinusCircleIcon,
   PlusCircleIcon,
   ArrowDownCircleIcon,
   ArrowUpCircleIcon,
 } from "@heroicons/react/24/outline";
+import { z } from "zod";
 import { useState } from "react";
 
 export default function RecipeForm() {
@@ -44,93 +44,101 @@ export default function RecipeForm() {
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let errorArray;
 
-    let trimmedTitle = title.trim();
-    let trimmedSource = source.trim();
+    const isString = z.string().trim().min(1);
+    const isArray = z.string().array().min(1);
+
+    let checkedTitle = isString.safeParse(title);
+
     let filteredIngredients = ingredients.filter((item) => item.length > 0);
     let filteredInstructions = instructions.filter((item) => item.length > 0);
 
-    errorArray = [];
+    let checkedIngredients = isArray.safeParse(filteredIngredients);
+    let checkedInstructions = isArray.safeParse(filteredInstructions);
 
-    if (trimmedTitle === "") {
-      console.log(1);
-      errorArray.push("Please add a title");
-    }
-
-    console.log(filteredIngredients);
-    if (!filteredIngredients.length) {
-      console.log(2);
-      errorArray.push("Please add ingredients");
-    }
-
-    if (!filteredInstructions.length) {
-      console.log(3);
-      errorArray.push("Please add instructions");
-    }
-
-    //set array to empty, if !errors
-    //@ts-ignore
-    setErrors(errorArray);
-    if (errorArray.length) {
-      return console.error(errorArray);
-    }
-
-    const recipe = {
-      title: trimmedTitle,
-      source: trimmedSource,
-      ingredients: filteredIngredients,
-      instructions: filteredInstructions,
-    };
-
-    const JSONrecipe = JSON.stringify(recipe);
-    const endpoint = "/api/addRecipe";
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSONrecipe,
-    };
-    console.log("fetch");
-    const response = await fetch(endpoint, options);
-
-    const result = await response.json();
-
-    console.log("push");
-    router.push("/dashboard");
-  };
-
-  const getRecipe = async () => {
-    console.log(link);
-    try {
-      setErrors([]);
-      let url;
-      try {
-        url = new URL(link);
-      } catch (e) {
-        console.log("error");
-        return setErrors([
-          "This is not a valid link. Make sure to copy the whole URL.",
-        ]);
-      }
-      setWarning("this may take a minute");
-
-      const object = {
-        link: link,
+    if (
+      checkedTitle.success === true &&
+      checkedIngredients.success === true &&
+      checkedInstructions.success === true
+    ) {
+      const recipe = {
+        title: checkedTitle.data,
+        source: source.trim(),
+        ingredients: checkedIngredients.data,
+        instructions: checkedInstructions.data,
       };
 
-      const json = JSON.stringify(object);
-      console.log(json);
-      const endpoint = "/api/getRecipeFromURL";
+      const JSONrecipe = JSON.stringify(recipe);
+      const endpoint = "/api/addRecipe";
       const options = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: json,
+        body: JSONrecipe,
       };
-      console.log("fetch");
+
+      const response = await fetch(endpoint, options);
+
+      const result = await response.json();
+
+      router.push("/dashboard");
+    } else {
+      let errorArray: string[] = [];
+
+      if (checkedTitle.success === false) {
+        errorArray.push("Please add a title");
+      }
+
+      if (checkedIngredients.success === false) {
+        errorArray.push("Please add ingredients");
+      }
+
+      if (checkedInstructions.success === false) {
+        errorArray.push("Please add instructions");
+      }
+
+      //set array to empty, if !errors
+      setErrors(errorArray);
+      if (errorArray.length) {
+        return console.error(errorArray);
+      }
+    }
+  };
+
+  const validateLinkAndFetch = () => {
+    const isUrl = z.string().url().safeParse(link);
+
+    if (!isUrl.success) {
+      return setErrors([
+        "This is not a valid link. Make sure to copy the whole URL.",
+      ]);
+    }
+
+    getRecipe();
+  };
+
+  const getRecipe = async () => {
+    setErrors([]);
+    let url;
+
+    setWarning("this may take a minute");
+
+    const object = {
+      link: link,
+    };
+
+    const json = JSON.stringify(object);
+    const endpoint = "/api/getRecipeFromURL";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: json,
+    };
+
+    try {
       const response = await fetch(endpoint, options);
       const result = await response.json();
 
@@ -140,8 +148,6 @@ export default function RecipeForm() {
         setIngredients(result.ingredients);
         setInstructions(result.instructions);
         setWarning("");
-      } else {
-        throw new Error("Unable to find complete recipe");
       }
     } catch (e) {
       setWarning(
@@ -160,13 +166,9 @@ export default function RecipeForm() {
   const addInstructionAbove = (index: number) => {
     let data = [...instructions];
     if (index === 0) {
-      console.log(index);
       data.splice(0, 0, "");
-      console.log(data);
     } else {
-      console.log(index);
       data.splice(index, 0, "");
-      console.log(data);
     }
     setInstructions(data);
   };
@@ -174,7 +176,6 @@ export default function RecipeForm() {
   const addInstructionBelow = (index: number) => {
     let data = [...instructions];
     if (index === instructions.length) {
-      console.log(index);
       data.push("");
     } else {
       data.splice(index + 1, 0, "");
@@ -255,7 +256,7 @@ export default function RecipeForm() {
           <button
             className="flex-none border-2 col-start-1 w-1/2 mb-2 bg-purple"
             type="button"
-            onClick={getRecipe}>
+            onClick={validateLinkAndFetch}>
             Get recipe from link
           </button>
           <button

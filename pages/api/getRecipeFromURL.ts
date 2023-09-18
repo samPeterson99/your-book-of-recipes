@@ -1,64 +1,60 @@
 //@ts-nocheck
-//need to figure out typing for these JSONs
-//feels somewhat like TS jsut isn't for this
-
 import * as cheerio from "cheerio";
+import { z } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
+
+type json = string | number | boolean | null | json[] | { [key: string]: json };
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  try {
-    console.log(req.body.link);
-    const url: string = req.body.link;
-    const checkURL = new URL(url);
-    if (!url && !checkURL) {
-      return res.status(400).json({ error: "Incomplete recipe" });
-    }
+  const url = z.string().url().parse(req.body.link);
 
-    const scriptContent = await getScriptContent(url);
-
-    let title: string = "";
-    let ingredients: object | string[] = findByKey(
-      scriptContent,
-      "recipeIngredient"
-    );
-    let instructions: object | string[] = findByKey(
-      scriptContent,
-      "recipeInstructions"
-    );
-
-    if (typeof ingredients[0] === "object") {
-      ingredients = findAllTexts(ingredients);
-    }
-
-    if (typeof instructions[0] === "object") {
-      instructions = findAllTexts(instructions);
-    }
-
-    const recipe = {
-      title: title,
-      source: url,
-      ingredients: ingredients,
-      instructions: instructions,
-    };
-    console.log(recipe);
-    res.json(recipe);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "Internal server error" });
+  if (!url) {
+    return res.status(400).json({ error: "Incomplete recipe" });
   }
+
+  const scriptContent = await getScriptContent(url);
+
+  let title: string = "";
+  let ingredients: object | string[] = findByKey(
+    scriptContent,
+    "recipeIngredient"
+  );
+  let instructions: object | string[] = findByKey(
+    scriptContent,
+    "recipeInstructions"
+  );
+
+  if (typeof ingredients[0] === "object") {
+    ingredients = findAllTexts(ingredients);
+  }
+
+  if (typeof instructions[0] === "object") {
+    instructions = findAllTexts(instructions);
+  }
+
+  const recipe = {
+    title: title,
+    source: url,
+    ingredients: ingredients,
+    instructions: instructions,
+  };
+
+  res.json(recipe);
 }
 
 async function getScriptContent(url: string) {
   const html = await fetch(url);
+
   const body = await html.text();
 
   const $ = cheerio.load(body);
   const scriptTag = $('script[type="application/ld+json"]');
   const contents = scriptTag.html();
-  const jsonContents = JSON.parse(contents);
+  const jsonContents: json = JSON.parse(contents);
+
   return jsonContents;
 }
 
