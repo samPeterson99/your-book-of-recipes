@@ -1,0 +1,4 @@
+https://www.yourbook.recipes/
+https://www.yourbook.recipes/recipeScraper
+https://www.yourbook.recipes/signin
+https://www.yourbook.recipes/blog

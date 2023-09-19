@@ -13,13 +13,15 @@ export default function Nav() {
 
   return (
     <div className="max-w-full container bg-darkGreen text-cream">
-      <div className="flex justify-between p-2 items-center">
-        <Link
-          href="/"
-          className="font-bold w-auto text-l sm:text-sm md:-mr-28  sm:mr-0 flex-none">
-          YOURBOOKofRECIPES
-        </Link>
-        <ul className="flex flex-row min-w-max flex-auto justify-self-center justify-center">
+      <div className="flex justify-between items-center w-full">
+        <div className="w-1/3">
+          <Link
+            href="/"
+            className="font-bold text-l sm:text-sm p-2">
+            YOURBOOKofRECIPES
+          </Link>
+        </div>
+        <ul className="flex flex-row w-1/3 justify-self-center justify-center ">
           <li className="text-sm w-16 sm:hidden lg:block mt-1 text-center">
             <Link href="/blog">blog</Link>
           </li>
@@ -44,19 +46,21 @@ export default function Nav() {
             <Link href="/recipeScraper">recipe scraper</Link>
           </li>
         </ul>
-        {session && session.user ? (
-          <button
-            className="flex-none border-2 p-2 rounded-2xl border-darkGreen hover:bg-cream hover:text-green justify-self-end"
-            onClick={() => signOut()}>
-            Sign out
-          </button>
-        ) : (
-          <button
-            className="flex-none border-2 p-2 rounded-2xl border-darkGreen hover:bg-cream hover:text-green"
-            onClick={redirectToSignIn}>
-            Sign in
-          </button>
-        )}
+        <div className="w-1/3 flex justify-end p-2">
+          {session && session.user ? (
+            <button
+              className="border-2 p-2 rounded-2xl border-darkGreen hover:bg-cream hover:text-green"
+              onClick={() => signOut()}>
+              Sign out
+            </button>
+          ) : (
+            <button
+              className="border-2 p-2 rounded-2xl border-darkGreen hover:bg-cream hover:text-green"
+              onClick={redirectToSignIn}>
+              Sign in
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

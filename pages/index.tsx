@@ -1,4 +1,5 @@
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { z } from "zod";
 import { useState } from "react";
@@ -64,6 +65,9 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center h-full lg:max-w-4xl lg:mx-auto xl:max-w-4xl xl:mx-auto sm:overflow-hidden">
+      <Head>
+        <title>Your Book of Recipes</title>
+      </Head>
       <h1 className="mt-10 text-4xl sm:text-2xl font-bold">
         Skip the story. Get the recipe.
       </h1>

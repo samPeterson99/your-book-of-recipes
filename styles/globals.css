@@ -59,7 +59,7 @@ a {
 
 }
 
-@media (max-width: 450px) {
+@media (max-width: 600px) {
   .form, .page {
     gap: 8px;
     padding-top: 6px;
@@ -68,7 +68,7 @@ a {
   }
 }
 
-@media (min-width: 451px) {
+@media (min-width: 601px) {
   .form, .page {
     gap: 8px;
     padding-top: 6px;
@@ -77,7 +77,7 @@ a {
   }
 }
 
-@media (max-width: 450px) {
+@media (max-width: 600px) {
   .pageLeft, .pageRight {
     display: flex;
     flex-direction: column;
@@ -93,7 +93,7 @@ a {
   }
 }
 
-@media (min-width: 451px) {
+@media (min-width: 601px) {
   .pageLeft, .pageRight {
     display: flex;
     flex-direction: column;
@@ -101,11 +101,13 @@ a {
   }
   
   .pageLeft {
-    width: 40%;
+    width: 30%;
+    margin-left: 10%;
   }
   
   .pageRight {
-    width: 60%;
+    width: 45%;
+    margin-right: 15%;
   }
 }
 
