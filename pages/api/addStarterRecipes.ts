@@ -156,17 +156,13 @@ export default async function handler(
       _id: "temp3",
     },
   ];
-  try {
-    const session = await getServerSession(req, res, authOptions);
 
-    const client = await clientPromise;
-    const db = client.db("data");
+  const session = await getServerSession(req, res, authOptions);
+  const client = await clientPromise;
+  const db = client.db("data");
 
-    const userId: string | undefined = session?.user?.id;
+  const userId: string | undefined = session?.user?.id;
 
-    const post = await db.collection(`${userId}`).insertMany(testRecipe);
-    return res.status(200).json(returnRecipe);
-  } catch (error) {
-    console.log(error);
-  }
+  const post = await db.collection(`${userId}`).insertMany(testRecipe);
+  return res.status(200).json(returnRecipe);
 }

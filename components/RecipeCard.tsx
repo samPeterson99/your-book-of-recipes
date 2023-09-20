@@ -2,18 +2,13 @@ import Link from "next/link";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { Recipe } from "@/types/zod";
 
 const RecipeCard = ({
   recipe,
   onDelete,
 }: {
-  recipe: {
-    _id: string;
-    title: string;
-    source?: string;
-    ingredients: string[];
-    instructions: string[];
-  };
+  recipe: Recipe;
   onDelete: () => void;
 }) => {
   const [showModal, setShowModal] = useState(false);
@@ -84,7 +79,7 @@ const RecipeCard = ({
           href={{
             pathname: link,
             query: {
-              id: recipe._id,
+              id: recipe.id,
             },
           }}
           className="absolute bottom-0 border-y-2 w-full bg-yellow-300 pl-2 border-gray-400">

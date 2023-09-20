@@ -22,9 +22,6 @@ export default function Nav() {
           </Link>
         </div>
         <ul className="flex flex-row w-1/3 justify-self-center justify-center ">
-          <li className="text-sm w-16 sm:hidden lg:block mt-1 text-center">
-            <Link href="/blog">blog</Link>
-          </li>
           <li className="w-fit justify-self-center text-center mx-10">
             <Link href="/dashboard">
               <svg
@@ -44,6 +41,9 @@ export default function Nav() {
           </li>
           <li className="text-sm w-fit sm:hidden lg:block mt-1">
             <Link href="/recipeScraper">recipe scraper</Link>
+          </li>
+          <li className="text-sm w-16 sm:hidden lg:block mt-1 text-center">
+            <Link href="/blog">blog</Link>
           </li>
         </ul>
         <div className="w-1/3 flex justify-end p-2">

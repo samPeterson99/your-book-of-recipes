@@ -3,18 +3,9 @@ import clientPromise from "@/lib/db";
 import Link from "next/link";
 import mongoose from "mongoose";
 import { NextPageContext } from "next";
+import { Recipe, SingleRecipeSchema } from "@/types/zod";
 
-export default function RecipePage({
-  recipe,
-}: {
-  recipe: {
-    _id: string;
-    title: string;
-    source?: string;
-    ingredients: string[];
-    instructions: string[];
-  };
-}) {
+export default function RecipePage({ recipe }: { recipe: Recipe }) {
   return (
     <div className="pageContainer">
       <div className="page">
@@ -33,7 +24,7 @@ export default function RecipePage({
             href={{
               pathname: `/editRecipe`,
               query: {
-                id: recipe._id,
+                id: recipe.id,
               },
             }}>
             Edit Recipe
@@ -72,23 +63,31 @@ export default function RecipePage({
 }
 
 export async function getServerSideProps(context: NextPageContext) {
-  try {
-    const session = await getSession(context);
-    const client = await clientPromise;
-    const db = client.db(`data`);
+  const session = await getSession(context);
+  const client = await clientPromise;
+  const db = client.db(`data`);
 
-    const query = context?.query?.id as string;
+  const query = context?.query?.id as string;
 
-    const _id = new mongoose.Types.ObjectId(query);
+  const _id = new mongoose.Types.ObjectId(query);
 
-    const recipes = await db.collection(`${session?.user?.id}`).findOne({
-      _id: _id,
+  const response = await db.collection(`${session?.user?.id}`).findOne({
+    _id: _id,
+  });
+
+  if (response) {
+    const recipe = SingleRecipeSchema.parse({
+      id: response._id.toString(),
+      title: response.title,
+      source: response.source,
+      ingredients: response.ingredients,
+      instructions: response.instructions,
     });
 
     return {
-      props: { recipe: JSON.parse(JSON.stringify(recipes)) },
+      props: {
+        recipe,
+      },
     };
-  } catch (e) {
-    console.log(e);
   }
 }

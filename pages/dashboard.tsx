@@ -1,13 +1,12 @@
 import Link from "next/link";
-import styles from "@/styles/Home.module.css";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import clientPromise from "@/lib/db";
 import { getSession } from "next-auth/react";
 import RecipeCard from "@/components/RecipeCard";
 import { useRouter } from "next/router";
-import { redirect } from "next/dist/server/api-utils";
 import { useState } from "react";
 import { NextPageContext } from "next";
+import { RecipeArray, RecipeArraySchema } from "@/types/zod";
 
 enum DisplayOrder {
   AtoZ,
@@ -20,20 +19,14 @@ enum DisplayOrder {
 export default function Dashboard({
   propRecipes,
 }: {
-  propRecipes: {
-    _id: string;
-    title: string;
-    source?: string;
-    ingredients: string[];
-    instructions: string[];
-  }[];
+  propRecipes: RecipeArray;
 }) {
   const { data: session, status } = useSession();
   const [search, setSearch] = useState("");
   const [order, setOrder] = useState(DisplayOrder.Default);
   const [recipes, setRecipes] = useState(propRecipes);
   const router = useRouter();
-  console.log(recipes);
+
   let displayRecipes = [...recipes];
 
   if (search !== "") {
@@ -73,9 +66,7 @@ export default function Dashboard({
   };
 
   const deleteRecipe = async (recipeId: string) => {
-    let filteredRecipes = recipes.filter((item) => item._id !== recipeId);
-
-    setRecipes(filteredRecipes);
+    setRecipes((state) => state.filter((item) => item.id !== recipeId));
 
     const endpoint = `/api/deleteRecipe/${recipeId}`;
 
@@ -85,8 +76,6 @@ export default function Dashboard({
 
     router.asPath;
   };
-
-  //move delete button to card
 
   if (status === "loading") {
     return <h1></h1>;
@@ -153,10 +142,10 @@ export default function Dashboard({
             {recipes.length > 0 ? (
               displayRecipes.map((recipe) => {
                 return (
-                  <li key={recipe._id}>
+                  <li key={recipe.id}>
                     <RecipeCard
                       recipe={recipe}
-                      onDelete={() => deleteRecipe(recipe._id)}
+                      onDelete={() => deleteRecipe(recipe.id)}
                     />
                   </li>
                 );
@@ -203,7 +192,17 @@ export async function getServerSideProps(context: NextPageContext) {
     .find({})
     .toArray();
 
+  const propRecipes = recipes.map((object) => {
+    return {
+      id: object._id.toString(),
+      title: object.title,
+      source: object.source,
+      ingredients: object.ingredients,
+      instructions: object.instructions,
+    };
+  });
+
   return {
-    props: { propRecipes: JSON.parse(JSON.stringify(recipes)) },
+    props: { propRecipes },
   };
 }

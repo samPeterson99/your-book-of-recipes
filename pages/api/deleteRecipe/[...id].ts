@@ -8,29 +8,22 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  try {
-    // @ts-ignore
-    const session = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions);
 
-    const client = await clientPromise;
-    const db = client.db("data");
+  const client = await clientPromise;
+  const db = client.db("data");
 
-    console.log(session);
+  const recipeId: string = req?.query?.id?.[0] ?? "";
 
-    const recipeId: string = req?.query?.id?.[0] ?? "";
+  const o_id: Types.ObjectId = new mongoose.Types.ObjectId(recipeId);
 
-    const o_id: Types.ObjectId = new mongoose.Types.ObjectId(recipeId);
-
-    if (!req.query || !session) {
-      return res.status(400).json({ data: "no request" });
-    }
-
-    const post = await db.collection(`${session.user.id}`).deleteOne({
-      _id: o_id,
-    });
-
-    res.json(post);
-  } catch (e) {
-    console.error(e);
+  if (!req.query || !session) {
+    return res.status(400).json({ data: "no request" });
   }
+
+  const post = await db.collection(`${session.user.id}`).deleteOne({
+    _id: o_id,
+  });
+
+  res.status(200).json(post);
 }

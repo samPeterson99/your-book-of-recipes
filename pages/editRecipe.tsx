@@ -13,22 +13,15 @@ import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/router";
 import mongoose from "mongoose";
 import { NextPageContext } from "next";
+import { Recipe, SingleRecipeSchema } from "@/types/zod";
 
-export default function EditRecipe({
-  recipe,
-}: {
-  recipe: {
-    _id: string;
-    title: string;
-    source?: string;
-    ingredients: string[];
-    instructions: string[];
-  };
-}) {
+export default function EditRecipe({ recipe }: { recipe: Recipe }) {
   const [title, setTitle] = useState(recipe.title);
   const [source, setSource] = useState(recipe.source ? recipe.source : "");
-  const [ingredients, setIngredients] = useState(recipe.ingredients);
-  const [instructions, setInstructions] = useState(recipe.instructions);
+  const [ingredients, setIngredients] = useState<string[]>(recipe.ingredients);
+  const [instructions, setInstructions] = useState<string[]>(
+    recipe.instructions
+  );
   const router = useRouter();
   console.log(source);
   const id = recipe._id;
@@ -82,7 +75,7 @@ export default function EditRecipe({
     const result = await response.json();
     router.push({
       pathname: `/recipePage`,
-      query: { id: recipe._id },
+      query: { id: recipe.id },
     });
   };
 
@@ -214,23 +207,31 @@ export default function EditRecipe({
 }
 
 export async function getServerSideProps(context: NextPageContext) {
-  try {
-    const session = await getSession(context);
-    const client = await clientPromise;
-    const db = client.db(`data`);
-    const id = `${context.query.id}`;
+  const session = await getSession(context);
+  const client = await clientPromise;
+  const db = client.db(`data`);
+  const id = `${context.query.id}`;
 
-    const o_id = new mongoose.Types.ObjectId(id);
+  const o_id = new mongoose.Types.ObjectId(id);
 
-    const recipe = await db.collection(`${session?.user?.id}`).findOne({
-      _id: o_id,
+  const response = await db.collection(`${session?.user?.id}`).findOne({
+    _id: o_id,
+  });
+
+  if (response) {
+    const recipe = SingleRecipeSchema.parse({
+      id: response._id.toString(),
+      title: response.title,
+      source: response.source,
+      ingredients: response.ingredients,
+      instructions: response.instructions,
     });
 
     return {
-      props: { recipe: JSON.parse(JSON.stringify(recipe)) },
+      props: {
+        recipe,
+      },
     };
-  } catch (e) {
-    console.log(e);
   }
 }
 
