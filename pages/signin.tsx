@@ -17,8 +17,6 @@ interface Provider {
 
 function Signin({ providers }: Providers) {
   const { data: session } = useSession();
-  const router = useRouter();
-  console.log(providers);
 
   return (
     <div className="h-screen flex flex-col items-center mt-32">

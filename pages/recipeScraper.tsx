@@ -6,8 +6,8 @@ import Link from "next/link";
 export default function RecipeScraper() {
   const [title, setTitle] = useState("");
   const [source, setSource] = useState("");
-  const [ingredients, setIngredients] = useState([]);
-  const [instructions, setInstructions] = useState([]);
+  const [ingredients, setIngredients] = useState<string[]>([]);
+  const [instructions, setInstructions] = useState<string[]>([]);
   const [link, setLink] = useState("");
 
   const [warning, setWarning] = useState("");
@@ -47,10 +47,17 @@ export default function RecipeScraper() {
       const result = await response.json();
       console.log("fetch");
       if (response.status === 200) {
+        const isString = z.string().trim().min(1);
+        const isArray = z.string().array().min(1);
+
+        const sourceString = isString.parse(result.source);
+        const ingredientArray = isArray.parse(result.ingredients);
+        const instructionArray = isArray.parse(result.instructions);
+
         setTitle("");
-        setSource(result.source);
-        setIngredients(result.ingredients);
-        setInstructions(result.instructions);
+        setSource(sourceString);
+        setIngredients(ingredientArray);
+        setInstructions(instructionArray);
         setWarning("");
       }
     } catch (e) {

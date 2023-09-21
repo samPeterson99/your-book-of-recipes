@@ -173,6 +173,7 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
           <label className="labelLeft">Title: </label>
           <input
             name="title"
+            type="text"
             className="inputBoxLeft w-10/12"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
@@ -180,6 +181,7 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
           <label className="labelLeft">Source: </label>
           <input
             name="source"
+            type="text"
             className="inputBoxLeft w-10/12"
             value={source}
             onChange={(event) => setSource(event.target.value)}
@@ -199,7 +201,7 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
                 className="flex flex-row my-1 items-center"
                 key={index}>
                 <input
-                  className="inputBox"
+                  className="ingredientBox"
                   name="ingredient"
                   value={form}
                   onChange={(event) => handleIngredientChange(event, index)}
