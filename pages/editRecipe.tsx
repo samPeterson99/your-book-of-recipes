@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/react";
 import clientPromise from "@/lib/db";
-import Link from "next/link";
+import { z } from "zod";
 import {
   ExclamationTriangleIcon,
   MinusCircleIcon,
@@ -13,18 +13,20 @@ import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/router";
 import mongoose from "mongoose";
 import { NextPageContext } from "next";
-import { Recipe, SingleRecipeSchema } from "@/types/zod";
+import { Recipe } from "@/types/zod";
 
 export default function EditRecipe({ recipe }: { recipe: Recipe }) {
+  const emptyArray: string[] = [];
+
   const [title, setTitle] = useState(recipe.title);
   const [source, setSource] = useState(recipe.source ? recipe.source : "");
   const [ingredients, setIngredients] = useState<string[]>(recipe.ingredients);
   const [instructions, setInstructions] = useState<string[]>(
     recipe.instructions
   );
+
+  const [errors, setErrors] = useState(emptyArray);
   const router = useRouter();
-  console.log(source);
-  const id = recipe._id;
 
   const handleIngredientChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -47,36 +49,67 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
   //bring in line with recipeForm submit
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let copiedIngredients: string[] = ingredients.filter(
-      (item) => item.length > 0
-    );
-    let copiedInstructions: string[] = instructions.filter(
-      (item) => item.length > 0
-    );
 
-    const recipeObject = {
-      title: title,
-      source: source,
-      ingredients: copiedIngredients,
-      instructions: copiedInstructions,
-    };
+    const isString = z.string().trim().min(1);
+    const isArray = z.string().array().min(1);
 
-    const JSONrecipe = JSON.stringify(recipeObject);
-    const endpoint = `/api/edit/${id}`;
-    const options = {
-      method: "PUT",
-      headers: {
-        "Content-Type": `application/json`,
-      },
-      body: JSONrecipe,
-    };
+    let checkedTitle = isString.safeParse(title);
 
-    const response = await fetch(endpoint, options);
-    const result = await response.json();
-    router.push({
-      pathname: `/recipePage`,
-      query: { id: recipe.id },
-    });
+    let filteredIngredients = ingredients.filter((item) => item.length > 0);
+    let filteredInstructions = instructions.filter((item) => item.length > 0);
+
+    let checkedIngredients = isArray.safeParse(filteredIngredients);
+    let checkedInstructions = isArray.safeParse(filteredInstructions);
+
+    if (
+      checkedTitle.success === true &&
+      checkedIngredients.success === true &&
+      checkedInstructions.success === true
+    ) {
+      const updatedRecipe = {
+        title: checkedTitle.data,
+        source: source.trim(),
+        ingredients: checkedIngredients.data,
+        instructions: checkedInstructions.data,
+      };
+
+      const JSONrecipe = JSON.stringify(updatedRecipe);
+      const endpoint = `/api/edit/${recipe.id}`;
+      const options = {
+        method: "PUT",
+        headers: {
+          "Content-Type": `application/json`,
+        },
+        body: JSONrecipe,
+      };
+
+      const response = await fetch(endpoint, options);
+      const result = await response.json();
+      router.push({
+        pathname: `/recipePage`,
+        query: { id: recipe.id },
+      });
+    } else {
+      let errorArray: string[] = [];
+
+      if (checkedTitle.success === false) {
+        errorArray.push("Please add a title");
+      }
+
+      if (checkedIngredients.success === false) {
+        errorArray.push("Please add ingredients");
+      }
+
+      if (checkedInstructions.success === false) {
+        errorArray.push("Please add instructions");
+      }
+
+      //set array to empty, if !errors
+      setErrors(errorArray);
+      if (errorArray.length) {
+        return console.error(errorArray);
+      }
+    }
   };
 
   const addIngredient = () => {
@@ -124,6 +157,19 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
         className="page"
         onSubmit={submit}>
         <div className="pageLeft">
+          <ul>
+            {errors.map((error, index) => {
+              return (
+                <li
+                  className="errorSign flex"
+                  key={index}>
+                  <p className="h-auto py-px px-2 mx-4">
+                    <b>Error:</b> {error}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
           <label className="labelLeft">Title: </label>
           <input
             name="title"
@@ -219,13 +265,13 @@ export async function getServerSideProps(context: NextPageContext) {
   });
 
   if (response) {
-    const recipe = SingleRecipeSchema.parse({
+    const recipe = {
       id: response._id.toString(),
       title: response.title,
       source: response.source,
       ingredients: response.ingredients,
       instructions: response.instructions,
-    });
+    };
 
     return {
       props: {

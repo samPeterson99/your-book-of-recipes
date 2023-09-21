@@ -76,13 +76,13 @@ export async function getServerSideProps(context: NextPageContext) {
   });
 
   if (response) {
-    const recipe = SingleRecipeSchema.parse({
+    const recipe = {
       id: response._id.toString(),
       title: response.title,
       source: response.source,
       ingredients: response.ingredients,
       instructions: response.instructions,
-    });
+    };
 
     return {
       props: {
