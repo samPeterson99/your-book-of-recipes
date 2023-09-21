@@ -42,9 +42,9 @@ export default function Nav() {
           <li className="text-sm w-fit sm:hidden lg:block mt-1">
             <Link href="/recipeScraper">recipe scraper</Link>
           </li>
-          <li className="text-sm w-16 sm:hidden lg:block mt-1 text-center">
+          {/* <li className="text-sm w-16 sm:hidden lg:block mt-1 text-center">
             <Link href="/blog">blog</Link>
-          </li>
+          </li> */}
         </ul>
         <div className="w-1/3 flex justify-end p-2">
           {session && session.user ? (

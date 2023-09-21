@@ -89,23 +89,6 @@ export default function Home() {
           </div>
         </div>
         <br />
-        {/* <br />
-        <div className="dotted-background flex flex-row">
-          <div className="mt-6 ml-24 h-5/6 w-1/2 p-8 bg-purple">
-            <p>
-              Google is the biggest recipe book of all time, but it can be hard
-              to find quality amidst the quantity.
-            </p>
-          </div>
-          <div className="w-1/2 p-8 mt-28 mr-24 -ml-8 bg-yellow-300">
-            <p>
-              Your Book of Recipes is a site to store your favorites. You can
-              even spare yourself the typing. Try out the &quot;Get Recipe&quot;
-              feature below.
-            </p>
-          </div>
-        </div>
-        <br /> */}
       </section>
 
       <div className="flex flex-col mt-4 w-full items-center">

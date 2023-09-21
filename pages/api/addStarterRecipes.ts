@@ -100,7 +100,7 @@ export default async function handler(
         "Turn the wings over, baste again, then carefully spoon out any remaining fat. Return the wings to the oven until nicely browned, another 20 minutes or so. Again, make sure they release easily from the pan",
         "Raise the oven temperature to 450°F. Carefully pour off any accumulated fat, then drizzle the wings with the hot sauce mixture and toss to coat. Spread them back out into a single layer and return them to the oven. Roast, tossing onces or twice, until crips all over, about 10 more minutes. Serve hot or at room temperature.",
       ],
-      _id: "temp1",
+      id: "temp1",
     },
     {
       title: "Shells with Broccoli and Capers",
@@ -122,7 +122,7 @@ export default async function handler(
         "Bring plenty of water to a boil for the pasta. When it boils, add salt and broccoli and cook, uncovered, until tender, 4 to 5 minutes. Scoop it out, shake off the water, add it to the bowl, and toss with the oil mixture. Cover",
         "Cook the pasta until al dente, then drain and add it to the broccoli. Toss well, season with plenty of pepper and toss with cheese.",
       ],
-      _id: "temp2",
+      id: "temp2",
     },
     {
       title: "Pad Thai",
@@ -153,7 +153,7 @@ export default async function handler(
         "Add noodles, sauce, bean sprouts and peanuts to the pan (reserving some peanuts for topping at the end). Toss everything to combine.",
         "Garnish the top with green onions, extra peanuts, cilantro and lime wedges. Serve immediately!",
       ],
-      _id: "temp3",
+      id: "temp3",
     },
   ];
 
