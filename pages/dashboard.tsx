@@ -6,7 +6,7 @@ import RecipeCard from "@/components/RecipeCard";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { NextPageContext } from "next";
-import { RecipeArray, RecipeArraySchema } from "@/types/zod";
+import { RecipeArray } from "@/types/zod";
 
 enum DisplayOrder {
   AtoZ,

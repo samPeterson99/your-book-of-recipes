@@ -1,7 +1,5 @@
 import { NextPageContext } from "next";
 import { useSession, getProviders, signIn, getSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
 
 type Providers = {
   [key: string]: Provider;

@@ -4,7 +4,6 @@ import Link from "next/link";
 
 //need a h1 on this page
 export default function RecipeScraper() {
-  const [title, setTitle] = useState("");
   const [source, setSource] = useState("");
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [instructions, setInstructions] = useState<string[]>([]);
@@ -54,7 +53,6 @@ export default function RecipeScraper() {
         const ingredientArray = isArray.parse(result.ingredients);
         const instructionArray = isArray.parse(result.instructions);
 
-        setTitle("");
         setSource(sourceString);
         setIngredients(ingredientArray);
         setInstructions(instructionArray);

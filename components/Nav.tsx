@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { HomeIcon } from "@heroicons/react/24/outline";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 
 export default function Nav() {

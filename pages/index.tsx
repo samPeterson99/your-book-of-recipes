@@ -1,6 +1,5 @@
 import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import { z } from "zod";
 import { useState } from "react";
 import Link from "next/link";
@@ -18,7 +17,6 @@ export default function Home() {
   const [pageState, setPageState] = useState(PageState.unused);
   const [ingredients, setIngredients] = useState([]);
   const [instructions, setInstructions] = useState([]);
-  const router = useRouter();
 
   const validateLinkAndFetch = () => {
     const isUrl = z.string().url().safeParse(link);

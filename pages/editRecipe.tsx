@@ -2,14 +2,12 @@ import { getSession } from "next-auth/react";
 import clientPromise from "@/lib/db";
 import { z } from "zod";
 import {
-  ExclamationTriangleIcon,
   MinusCircleIcon,
   PlusCircleIcon,
   ArrowDownCircleIcon,
   ArrowUpCircleIcon,
 } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
-import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/router";
 import mongoose from "mongoose";
 import { NextPageContext } from "next";

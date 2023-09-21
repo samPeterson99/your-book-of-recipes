@@ -3,7 +3,7 @@ import clientPromise from "@/lib/db";
 import Link from "next/link";
 import mongoose from "mongoose";
 import { NextPageContext } from "next";
-import { Recipe, SingleRecipeSchema } from "@/types/zod";
+import { Recipe } from "@/types/zod";
 
 export default function RecipePage({ recipe }: { recipe: Recipe }) {
   return (
