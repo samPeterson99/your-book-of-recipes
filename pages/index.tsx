@@ -66,26 +66,30 @@ export default function Home() {
       <Head>
         <title>Your Book of Recipes</title>
       </Head>
-      <h1 className="mt-10 text-4xl sm:text-2xl font-bold">
-        Skip the story. Get the recipe.
+      <div className="cover z-50">YRBR</div>
+      <h1 className="mt-10 text-5xl sm:text-2xl font-bold">
+        YOURBOOKofRECIPES
       </h1>
+      <h2 className="mt-2 text-xl sm:text-xl font-bold">
+        Skip the story. Get the recipe.
+      </h2>
       <section>
         <br />
-        <div className="dotted-background flex flex-row">
-          <div className="mt-6 md:ml-24 sm:ml-10 h-5/6 w-2/3 p-4 pl-10 sm:pl-4 bg-purple z-50">
-            <p>
-              {" "}
-              Just copy and paste the URL of the recipe into the box, click
-              &lsquo;Scrape Recipe&lsquo;, and save yourself some scrolling.
-            </p>
-          </div>
-          <div className="w-2/3 p-6 mt-36 md:mr-24 sm:mr-10 -ml-2 bg-yellow-300">
-            <p>
-              When you sign in to Your Book of Recipes, you can start saving
-              these recipes.
-            </p>
-          </div>
+
+        <div className="mt-6 m-auto h-5/6 w-2/3 text-center p-4 pl-10 sm:pl-4 bg-purple z-10">
+          <p>
+            {" "}
+            Just copy and paste the URL of the recipe into the box, click
+            &lsquo;Scrape Recipe&lsquo;, and save yourself some scrolling.
+          </p>
         </div>
+        <div className="w-3/5 p-6  m-auto text-center bg-yellow-300">
+          <p>
+            When you sign in to Your Book of Recipes, you can start saving these
+            recipes.
+          </p>
+        </div>
+
         <br />
       </section>
 
