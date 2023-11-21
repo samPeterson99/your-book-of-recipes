@@ -4,7 +4,6 @@ import formidable, { Fields, Files } from "formidable";
 import { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
-import { z } from "zod";
 import { Session, getServerSession } from "next-auth";
 
 export const config = {
@@ -24,11 +23,11 @@ export default async function awsUploader(
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
-    res.status(405).json({ success: false });
+    res.status(405);
   }
 
   const session: Session | null = await getServerSession(req, res, authOptions);
-  if (!session) return res.status(401);
+  if (!session || !session.user.id) return res.status(401);
   const s3Client = new S3Client({});
 
   const formData: FormData = await new Promise((resolve, reject) => {
@@ -40,23 +39,25 @@ export default async function awsUploader(
     });
   });
 
-  const { error, fields, files } = formData;
+  const { fields, files } = formData;
 
   if (!files || !fields || !files.fileBlob || !fields.fileType) {
-    return res.status(400).json({ success: false });
+    return res.status(400).json({ message: "Image not received by API" });
   }
+
   const picturePath = files.fileBlob[0].filepath;
   const pictureType = fields.fileType[0];
 
-  console.log(pictureType);
-  const userId: string | undefined = session?.user?.id;
+  if (pictureType !== "image/jpeg" && pictureType !== "image/png") {
+    return res.status(400).json({ message: "Wrong file type" });
+  }
+
+  const userId: string = session.user.id;
 
   const uuid = uuidv4();
   const photoKey = uuid + (pictureType === "image/jpeg" ? ".jpeg" : ".png");
 
   const pictureBlob = fs.readFileSync(picturePath);
-
-  console.log(pictureBlob);
 
   const command = new PutObjectCommand({
     Bucket: "yrrb",
@@ -65,7 +66,6 @@ export default async function awsUploader(
     Body: pictureBlob,
   });
 
-  console.log(photoKey);
   try {
     const response = await s3Client.send(command);
     console.log(response);

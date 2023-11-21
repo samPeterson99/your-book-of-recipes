@@ -8,6 +8,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session || !session.user.id) return res.status(401);
+  const client = await clientPromise;
+  const db = client.db("data");
+
   const parseResult = SingleRecipeSchema.safeParse(req.body);
   if (!parseResult.success) {
     console.log(parseResult.error);
@@ -15,11 +20,6 @@ export default async function handler(
   } else {
     var body = parseResult.data;
   }
-
-  const session = await getServerSession(req, res, authOptions);
-  if (!session) return res.status(401);
-  const client = await clientPromise;
-  const db = client.db("data");
 
   let { title, source, ingredients, instructions, imageId } = body;
 
