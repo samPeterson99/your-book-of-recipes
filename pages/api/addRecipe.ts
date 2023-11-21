@@ -10,16 +10,18 @@ export default async function handler(
 ) {
   const parseResult = SingleRecipeSchema.safeParse(req.body);
   if (!parseResult.success) {
+    console.log(parseResult.error);
     return res.status(400).json({ data: "Incomplete recipe" });
   } else {
     var body = parseResult.data;
   }
 
   const session = await getServerSession(req, res, authOptions);
+  if (!session) return res.status(401);
   const client = await clientPromise;
   const db = client.db("data");
 
-  let { title, source, ingredients, instructions } = body;
+  let { title, source, ingredients, instructions, imageId } = body;
 
   const userId: string | undefined = session?.user?.id;
 
@@ -28,6 +30,7 @@ export default async function handler(
     source,
     ingredients,
     instructions,
+    imageId,
   });
   res.json(post);
 }

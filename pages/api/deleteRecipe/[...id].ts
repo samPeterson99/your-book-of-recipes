@@ -11,6 +11,8 @@ export default async function handler(
 ) {
   const session = await getServerSession(req, res, authOptions);
 
+  console.log(req.method);
+
   const client = await clientPromise;
   const db = client.db("data");
 
@@ -23,9 +25,11 @@ export default async function handler(
     return res.status(400).json({ data: "no request" });
   }
 
-  const post = await db.collection(`${session.user.id}`).deleteOne({
+  const post = await db.collection(`${session.user.id}`).findOneAndDelete({
     _id: o_id,
   });
+
+  console.log(post);
 
   res.status(200).json(post);
 }

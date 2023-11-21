@@ -6,7 +6,7 @@ import RecipeCard from "@/components/RecipeCard";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { NextPageContext } from "next";
-import { RecipeArray } from "@/types/zod";
+import { Recipe, RecipeArray } from "@/types/zod";
 
 enum DisplayOrder {
   AtoZ,
@@ -65,13 +65,16 @@ export default function Dashboard({
     setRecipes(starterRecipes);
   };
 
-  const deleteRecipe = async (recipeId: string) => {
+  const deleteRecipe = async (recipe: Recipe) => {
+    const recipeId = recipe.id;
     setRecipes((state) => state.filter((item) => item.id !== recipeId));
 
     const endpoint = `/api/deleteRecipe/${recipeId}`;
 
-    const response = await fetch(endpoint);
-
+    const options = {
+      method: "DELETE",
+    };
+    const response = await fetch(endpoint, options);
     const result = await response.json();
 
     router.asPath;
@@ -145,7 +148,7 @@ export default function Dashboard({
                   <li key={recipe.id}>
                     <RecipeCard
                       recipe={recipe}
-                      onDelete={() => deleteRecipe(recipe.id)}
+                      onDelete={() => deleteRecipe(recipe)}
                     />
                   </li>
                 );
@@ -193,12 +196,14 @@ export async function getServerSideProps(context: NextPageContext) {
     .toArray();
 
   const propRecipes = recipes.map((object) => {
+    console.log(object);
     return {
       id: object._id.toString(),
       title: object.title,
       source: object.source,
       ingredients: object.ingredients,
       instructions: object.instructions,
+      imageId: object.imageId ? object.imageId : null,
     };
   });
 

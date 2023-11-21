@@ -4,6 +4,8 @@ import Link from "next/link";
 import mongoose from "mongoose";
 import { NextPageContext } from "next";
 import { Recipe } from "@/types/zod";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export default function RecipePage({ recipe }: { recipe: Recipe }) {
   return (
@@ -44,6 +46,10 @@ export default function RecipePage({ recipe }: { recipe: Recipe }) {
         </div>
 
         <div className="pageRight">
+          <img
+            src={recipe.imageUrl}
+            alt=""
+          />
           <h3 className="iWord">Instructions</h3>
           <ul>
             {recipe.instructions.map((item, index) => {
@@ -71,17 +77,35 @@ export async function getServerSideProps(context: NextPageContext) {
 
   const _id = new mongoose.Types.ObjectId(query);
 
+  const userId = session?.user?.id;
+
   const response = await db.collection(`${session?.user?.id}`).findOne({
     _id: _id,
   });
 
   if (response) {
+    let url;
+    console.log(response.imageId);
+    if (response.imageId) {
+      const s3Client = new S3Client({});
+
+      const command = new GetObjectCommand({
+        Bucket: "yrrb",
+        Key: `${userId}/${response.imageId}`,
+      });
+
+      url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+      console.log(url);
+    }
+
     const recipe = {
       id: response._id.toString(),
       title: response.title,
       source: response.source,
       ingredients: response.ingredients,
       instructions: response.instructions,
+      imageId: response.imageId,
+      imageUrl: url,
     };
 
     return {

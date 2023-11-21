@@ -136,13 +136,13 @@ a {
   }
   
   .pageLeft {
-    width: 30%;
+    width: 35%;
     margin-left: 10%;
   }
   
   .pageRight {
     width: 45%;
-    margin-right: 15%;
+    margin-right: 10%;
   }
 }
 
