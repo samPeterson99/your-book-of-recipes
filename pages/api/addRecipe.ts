@@ -8,8 +8,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  console.log(req.body);
   const parseResult = SingleRecipeSchema.safeParse(req.body);
   if (!parseResult.success) {
+    console.log("error");
     return res.status(400).json({ data: "Incomplete recipe" });
   } else {
     var body = parseResult.data;
