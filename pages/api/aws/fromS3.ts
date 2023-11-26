@@ -1,3 +1,5 @@
+// TODO: decide on whether I need this
+
 import clientPromise from "@/lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";

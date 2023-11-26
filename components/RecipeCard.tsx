@@ -3,6 +3,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Recipe } from "@/types/zod";
+import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 
 const RecipeCard = ({
   recipe,
@@ -52,6 +53,13 @@ const RecipeCard = ({
           />
         )}
 
+        {recipe.imageUrl && (
+          <img
+            className="h-10 w-10"
+            src={recipe.imageUrl}
+            alt={"Image of " + recipe.title}
+          />
+        )}
         <h3 className="mt-10 mb-4 text-xl font-semibold pl-2 pb-0 w-full overflow-hidden ">
           {recipe.title}
         </h3>

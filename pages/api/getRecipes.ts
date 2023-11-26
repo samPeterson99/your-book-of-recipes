@@ -9,10 +9,11 @@ export default async function getRecipes(
   res: NextApiResponse
 ) {
   const session = await getServerSession(req, res, authOptions);
+  if (!session || !session.user.id) return res.status(401);
 
   const client = await clientPromise;
   const db = client.db(`data`);
-  const userId: string | undefined = session?.user?.id;
+  const userId: string | undefined = session.user.id;
 
   const recipes = await db.collection(`${userId}`).find({}).toArray();
 

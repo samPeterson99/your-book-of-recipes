@@ -7,6 +7,8 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { NextPageContext } from "next";
 import { Recipe, RecipeArray } from "@/types/zod";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 enum DisplayOrder {
   AtoZ,
@@ -177,7 +179,8 @@ export default function Dashboard({
 
 export async function getServerSideProps(context: NextPageContext) {
   const session = await getSession(context);
-  if (!session) {
+  const s3Client = new S3Client({});
+  if (!session && !session.user.id) {
     return {
       redirect: {
         permanent: false,
@@ -189,14 +192,23 @@ export async function getServerSideProps(context: NextPageContext) {
 
   const client = await clientPromise;
   const db = client.db(`data`);
+  const userId = session?.user.id;
 
-  const recipes = await db
-    .collection(`${session?.user?.id}`)
-    .find({})
-    .toArray();
+  const recipes = await db.collection(`${userId}`).find({}).toArray();
 
   const propRecipes = recipes.map((object) => {
-    console.log(object);
+    //need a different solution
+    // let url;
+    // if (object.imageId) {
+    //   const command = new GetObjectCommand({
+    //     Bucket: "yrrb",
+    //     Key: `${userId}/${object.imageId}`,
+    //   });
+
+    //   url = await getSignedUrl(s3Client, command, { expiresIn: 3600 })
+    // } else {
+    //   url = null;
+    // }
     return {
       id: object._id.toString(),
       title: object.title,
@@ -204,6 +216,7 @@ export async function getServerSideProps(context: NextPageContext) {
       ingredients: object.ingredients,
       instructions: object.instructions,
       imageId: object.imageId ? object.imageId : null,
+      imageUrl: null,
     };
   });
 

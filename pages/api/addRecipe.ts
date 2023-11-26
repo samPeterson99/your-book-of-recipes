@@ -10,6 +10,7 @@ export default async function handler(
 ) {
   const session = await getServerSession(req, res, authOptions);
   if (!session || !session.user.id) return res.status(401);
+
   const client = await clientPromise;
   const db = client.db("data");
 
@@ -23,7 +24,7 @@ export default async function handler(
 
   let { title, source, ingredients, instructions, imageId } = body;
 
-  const userId: string | undefined = session?.user?.id;
+  const userId: string = session.user.id;
 
   const post = await db.collection(`${userId}`).insertOne({
     title,

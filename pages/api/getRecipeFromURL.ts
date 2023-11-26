@@ -64,8 +64,10 @@ function findByKey(obj: json, key: string): string[] | null {
     if (k === key) {
       const arrayCheck = isArray.safeParse(obj[k as keyof json]);
       if (arrayCheck.success) {
+        //return array of strings as found
         return obj[k as keyof json] as string[];
       } else {
+        //call helper function to simplify array of objects
         return findAllTexts(obj[k as keyof json]);
       }
     } else if (typeof obj[k as keyof json] === "object") {
