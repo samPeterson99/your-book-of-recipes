@@ -65,7 +65,7 @@ export default function Dashboard({
     setRecipes(starterRecipes);
   };
 
-  const deleteRecipe = async (recipeId: string) => {
+  const deleteRecipe = async (recipeId: string | undefined) => {
     setRecipes((state) => state.filter((item) => item.id !== recipeId));
 
     const endpoint = `/api/deleteRecipe/${recipeId}`;
