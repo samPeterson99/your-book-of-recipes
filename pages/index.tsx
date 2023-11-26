@@ -66,7 +66,7 @@ export default function Home() {
       <Head>
         <title>Your Book of Recipes</title>
       </Head>
-      <div className="cover z-50">YRBR</div>
+      {/* <div className="cover z-50">YRBR</div> */}
       <h1 className="mt-10 text-5xl sm:text-2xl font-bold">
         YOURBOOKofRECIPES
       </h1>
