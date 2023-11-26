@@ -180,7 +180,7 @@ export default function Dashboard({
 export async function getServerSideProps(context: NextPageContext) {
   const session = await getSession(context);
   const s3Client = new S3Client({});
-  if (!session && !session.user.id) {
+  if (!session) {
     return {
       redirect: {
         permanent: false,
