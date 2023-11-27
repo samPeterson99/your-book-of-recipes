@@ -354,10 +354,48 @@ export default function RecipeForm() {
             Get recipe from link
           </button>
           <button
-            className="flex-none border-2 col-start-1 w-1/2 bg-purple"
+            className="flex-none border-2 col-start-1 w-1/2 bg-purple mb-4"
             type="submit">
             Submit
           </button>
+
+          {pictureFile ? (
+            <div>
+              {" "}
+              <img
+                className="h-44 w-44"
+                src={imagePreview}
+                alt=""
+              />
+              <button
+                type="button"
+                className="flex-none border-2 col-start-1 w-1/2 bg-purple"
+                onClick={removeImage}>
+                Remove image
+              </button>
+            </div>
+          ) : (
+            <Dropzone onDrop={handleDrop}>
+              {({ getRootProps, getInputProps }) => (
+                <div
+                  {...getRootProps()}
+                  className="h-20 bg-gray-300 max-w-sm">
+                  <input {...getInputProps()} />
+                  <p className="text-center mt-4 h-auto">
+                    Drag & drop images here, or click to select files
+                  </p>
+                  {pictureError && (
+                    <p className="text-center font-bold h-auto text-red-500">
+                      The image must be either a .png or .jpeg file
+                    </p>
+                  )}
+                </div>
+              )}
+            </Dropzone>
+          )}
+        </div>
+
+        <div className="pageRight">
           <label
             className="iWord"
             htmlFor="ingredients">
@@ -385,45 +423,6 @@ export default function RecipeForm() {
             className="addButton"
             onClick={addIngredient}
           />
-        </div>
-
-        <div className="pageRight">
-          {pictureFile ? (
-            <div>
-              {" "}
-              <p>image preview</p>
-              <img
-                className="h-44 w-44"
-                src={imagePreview}
-                alt=""
-              />
-              <button
-                type="button"
-                className="flex-none border-2 col-start-1 w-1/2 bg-purple"
-                onClick={removeImage}>
-                Remove image
-              </button>
-              <button
-                type="button"
-                onClick={storeImage}>
-                TEST
-              </button>
-            </div>
-          ) : (
-            <Dropzone onDrop={handleDrop}>
-              {({ getRootProps, getInputProps }) => (
-                <div
-                  {...getRootProps()}
-                  className="h-20 bg-gray-300 ">
-                  <input {...getInputProps()} />
-                  <p>Drag & drop images here, or click to select files</p>
-                  {pictureError && (
-                    <p>The image must be either a .png or .jpeg file</p>
-                  )}
-                </div>
-              )}
-            </Dropzone>
-          )}
           <label
             className="iWord"
             htmlFor="instructions">

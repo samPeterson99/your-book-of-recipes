@@ -47,7 +47,7 @@ export default function RecipePage({ recipe }: { recipe: Recipe }) {
 
         <div className="pageRight">
           <img
-            className="h-80 w-80"
+            className="h-60 w-60"
             src={recipe.imageUrl}
             alt=""
           />

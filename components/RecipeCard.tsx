@@ -69,7 +69,7 @@ const RecipeCard = ({
               <li
                 key={index}
                 className="text-sm ml-8">
-                {form},
+                {form}
               </li>
             );
           })}
@@ -91,7 +91,7 @@ const RecipeCard = ({
             },
           }}
           className="absolute bottom-0 border-y-2 w-full bg-yellow-300 pl-2 border-gray-400">
-          Click for Recipe
+          Open Recipe
         </Link>
       </div>
     </div>
