@@ -4,11 +4,18 @@ import clientPromise from "@/lib/db";
 import mongoose from "mongoose";
 import { SingleRecipeSchema } from "@/types/zod";
 import { NextApiRequest, NextApiResponse } from "next";
+import { z } from "zod";
 
 export default async function updateHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session || !session.user.id) return res.status(401)
+
+  const client = await clientPromise;
+  const db = client.db("data");
+
   const parseResult = SingleRecipeSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res.status(400).json({ data: "Incomplete recipe" });
@@ -16,14 +23,13 @@ export default async function updateHandler(
     var requestBody = parseResult.data;
   }
 
-  const session = await getServerSession(req, res, authOptions);
-  const client = await clientPromise;
-  const db = client.db("data");
+  const idCheck = z.string();
+  const recipeId = idCheck.parse(req?.query?.id?.[0]);
 
   const { title, source, ingredients, instructions } = requestBody;
-  const o_id = new mongoose.Types.ObjectId(req?.query?.id?.[0]);
+  const o_id = new mongoose.Types.ObjectId(recipeId);
 
-  const post = await db.collection(`${session?.user.id}`).updateOne(
+  const post = await db.collection(`${session.user.id}`).updateOne(
     {
       _id: o_id,
     },

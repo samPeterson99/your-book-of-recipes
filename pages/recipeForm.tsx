@@ -5,10 +5,12 @@ import {
   ArrowDownCircleIcon,
   ArrowUpCircleIcon,
 } from "@heroicons/react/24/outline";
+import Dropzone from "react-dropzone";
 import { z } from "zod";
 import { useState } from "react";
 
 export default function RecipeForm() {
+  let imagePreview = "";
   const blankArray = ["", "", "", "", ""];
   const emptyArray: string[] = [];
 
@@ -16,6 +18,8 @@ export default function RecipeForm() {
   const [source, setSource] = useState("");
   const [ingredients, setIngredients] = useState(blankArray);
   const [instructions, setInstructions] = useState(blankArray);
+  const [pictureFile, setPictureFile] = useState<File | null>(null);
+  const [pictureError, setPictureError] = useState(false);
 
   const [link, setLink] = useState("");
 
@@ -23,6 +27,10 @@ export default function RecipeForm() {
   const [warning, setWarning] = useState("");
 
   const router = useRouter();
+
+  if (pictureFile) {
+    imagePreview = URL.createObjectURL(pictureFile);
+  }
 
   const handleIngredientChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -41,6 +49,69 @@ export default function RecipeForm() {
     data[index] = event.target.value;
     setInstructions(data);
   };
+
+  function fileToBlob(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const result = reader.result;
+
+        if (result instanceof ArrayBuffer) {
+          const blob = new Blob([result], { type: file.type });
+          resolve(blob);
+        } else {
+          reject(new Error("Failed to read file as ArrayBuffer"));
+        }
+      };
+
+      reader.onerror = (error) => {
+        reject(error);
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  async function storeImage(): Promise<string | null> {
+    return new Promise(async (resolve, reject) => {
+      if (!pictureFile) {
+        resolve(null);
+      } else {
+        try {
+          const formData = new FormData();
+
+          const fileType = pictureFile?.type;
+
+          const fileBlob = await fileToBlob(pictureFile);
+          formData.append("fileBlob", fileBlob);
+          formData.append("fileType", fileType);
+          console.log(fileBlob);
+
+          const endpoint = "/api/aws/uploadImage";
+          const options = {
+            method: "POST",
+            body: formData,
+          };
+
+          const response = await fetch(endpoint, options);
+          const result = await response.json();
+
+          if (response.ok) {
+            resolve(result.key);
+          } else {
+            console.error("Your image did not upload. Please try again later.");
+            reject(null);
+          }
+        } catch (error) {
+          console.error(
+            "An error occurred while uploading the image. Please try again later."
+          );
+          reject(null);
+        }
+      }
+    });
+  }
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,12 +132,17 @@ export default function RecipeForm() {
       checkedIngredients.success === true &&
       checkedInstructions.success === true
     ) {
+      const imageId = await storeImage();
+
       const recipe = {
         title: checkedTitle.data,
         source: source.trim(),
         ingredients: checkedIngredients.data,
         instructions: checkedInstructions.data,
+        imageId: imageId,
       };
+
+      console.log(recipe);
 
       const JSONrecipe = JSON.stringify(recipe);
       const endpoint = "/api/addRecipe";
@@ -195,6 +271,24 @@ export default function RecipeForm() {
     setInstructions(data);
   };
 
+  const handleDrop = async (droppedFiles: File[]) => {
+    console.log("dropped");
+    const fileType = droppedFiles[0].type;
+    if (fileType === "image/png" || fileType === "image/jpeg") {
+      setPictureFile(droppedFiles[0]);
+      setPictureError(false);
+      droppedFiles.pop();
+    } else {
+      droppedFiles.pop();
+      setPictureError(true);
+    }
+  };
+
+  const removeImage = () => {
+    setPictureFile(null);
+    setPictureError(false);
+  };
+
   return (
     <div className="pageContainer">
       <form
@@ -260,10 +354,45 @@ export default function RecipeForm() {
             Get recipe from link
           </button>
           <button
-            className="flex-none border-2 col-start-1 w-1/2 bg-purple"
+            className="flex-none border-2 col-start-1 w-1/2 bg-purple mb-4"
             type="submit">
             Submit
           </button>
+
+          {pictureFile ? (
+            <div>
+              {" "}
+              <img
+                className="h-44 w-44"
+                src={imagePreview}
+                alt=""
+              />
+              <button
+                type="button"
+                className="flex-none border-2 col-start-1 w-1/2 bg-purple"
+                onClick={removeImage}>
+                Remove image
+              </button>
+            </div>
+          ) : (
+            <Dropzone onDrop={handleDrop}>
+              {({ getRootProps, getInputProps }) => (
+                <div
+                  {...getRootProps()}
+                  className="h-20 bg-gray-300 max-w-sm">
+                  <input {...getInputProps()} />
+                  <p className="text-center mt-4 h-auto">
+                    Drag & drop images here, or click to select files
+                  </p>
+                  {pictureError && (
+                    <p className="text-center font-bold h-auto text-red-500">
+                      The image must be either a .png or .jpeg file
+                    </p>
+                  )}
+                </div>
+              )}
+            </Dropzone>
+          )}
         </div>
 
         <div className="pageRight">

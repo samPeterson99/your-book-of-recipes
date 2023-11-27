@@ -7,7 +7,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("oh hello");
   const testRecipe = [
     {
       title: "Chicken Wings",
@@ -158,11 +157,13 @@ export default async function handler(
   ];
 
   const session = await getServerSession(req, res, authOptions);
+  if (!session || !session.user.id) return res.status(401);
   const client = await clientPromise;
   const db = client.db("data");
 
-  const userId: string | undefined = session?.user?.id;
+  const userId: string | undefined = session.user.id;
 
   const post = await db.collection(`${userId}`).insertMany(testRecipe);
+  //find a way to return with real ids
   return res.status(200).json(returnRecipe);
 }

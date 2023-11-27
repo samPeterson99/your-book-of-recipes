@@ -6,7 +6,9 @@ import RecipeCard from "@/components/RecipeCard";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { NextPageContext } from "next";
-import { RecipeArray } from "@/types/zod";
+import { Recipe, RecipeArray } from "@/types/zod";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 enum DisplayOrder {
   AtoZ,
@@ -65,13 +67,16 @@ export default function Dashboard({
     setRecipes(starterRecipes);
   };
 
-  const deleteRecipe = async (recipeId: string | undefined) => {
+  const deleteRecipe = async (recipe: Recipe) => {
+    const recipeId = recipe.id;
     setRecipes((state) => state.filter((item) => item.id !== recipeId));
 
     const endpoint = `/api/deleteRecipe/${recipeId}`;
 
-    const response = await fetch(endpoint);
-
+    const options = {
+      method: "DELETE",
+    };
+    const response = await fetch(endpoint, options);
     const result = await response.json();
 
     router.asPath;
@@ -145,7 +150,7 @@ export default function Dashboard({
                   <li key={recipe.id}>
                     <RecipeCard
                       recipe={recipe}
-                      onDelete={() => deleteRecipe(recipe.id)}
+                      onDelete={() => deleteRecipe(recipe)}
                     />
                   </li>
                 );
@@ -174,6 +179,7 @@ export default function Dashboard({
 
 export async function getServerSideProps(context: NextPageContext) {
   const session = await getSession(context);
+  const s3Client = new S3Client({});
   if (!session) {
     return {
       redirect: {
@@ -186,19 +192,31 @@ export async function getServerSideProps(context: NextPageContext) {
 
   const client = await clientPromise;
   const db = client.db(`data`);
+  const userId = session?.user.id;
 
-  const recipes = await db
-    .collection(`${session?.user?.id}`)
-    .find({})
-    .toArray();
+  const recipes = await db.collection(`${userId}`).find({}).toArray();
 
   const propRecipes = recipes.map((object) => {
+    //need a different solution
+    // let url;
+    // if (object.imageId) {
+    //   const command = new GetObjectCommand({
+    //     Bucket: "yrrb",
+    //     Key: `${userId}/${object.imageId}`,
+    //   });
+
+    //   url = await getSignedUrl(s3Client, command, { expiresIn: 3600 })
+    // } else {
+    //   url = null;
+    // }
     return {
       id: object._id.toString(),
       title: object.title,
       source: object.source,
       ingredients: object.ingredients,
       instructions: object.instructions,
+      imageId: object.imageId ? object.imageId : null,
+      imageUrl: null,
     };
   });
 

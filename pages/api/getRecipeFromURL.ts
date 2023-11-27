@@ -1,4 +1,4 @@
-//@ts-nocheck
+//Make front end responsive to various error codes
 import * as cheerio from "cheerio";
 import { z } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -12,28 +12,23 @@ export default async function handler(
   const url = z.string().url().parse(req.body.link);
 
   if (!url) {
-    return res.status(400).json({ error: "Incomplete recipe" });
+    return res.status(400).json({ error: "Invalid URL" });
   }
 
   const scriptContent = await getScriptContent(url);
 
+  if (!scriptContent) {
+    return res
+      .status(400)
+      .json({ error: "Website could not be loaded by scraper" });
+  }
+
   let title: string = "";
-  let ingredients: object | string[] = findByKey(
-    scriptContent,
-    "recipeIngredient"
-  );
-  let instructions: object | string[] = findByKey(
-    scriptContent,
-    "recipeInstructions"
-  );
+  let ingredients = findByKey(scriptContent, "recipeIngredient");
+  let instructions = findByKey(scriptContent, "recipeInstructions");
 
-  if (typeof ingredients[0] === "object") {
-    ingredients = findAllTexts(ingredients);
-  }
-
-  if (typeof instructions[0] === "object") {
-    instructions = findAllTexts(instructions);
-  }
+  if (!ingredients || !instructions)
+    return res.status(400).json({ error: "recipe not found on page" });
 
   const recipe = {
     title: title,
@@ -42,7 +37,7 @@ export default async function handler(
     instructions: instructions,
   };
 
-  res.json(recipe);
+  res.status(200).json(recipe);
 }
 
 async function getScriptContent(url: string) {
@@ -53,32 +48,48 @@ async function getScriptContent(url: string) {
   const $ = cheerio.load(body);
   const scriptTag = $('script[type="application/ld+json"]');
   const contents = scriptTag.html();
+
+  if (!contents) return;
   const jsonContents: json = JSON.parse(contents);
 
   return jsonContents;
 }
 
 //need to find
-function findByKey(obj: object, key: string): string[] | object | undefined {
-  for (let k in obj) {
+function findByKey(obj: json, key: string): string[] | null {
+  const isArray = z.string().array();
+  if (obj === null) return null;
+
+  for (let k in obj as { [key: string]: json }) {
     if (k === key) {
-      return obj[k];
-    } else if (typeof obj[k] === "object") {
-      let result = findByKey(obj[k], key);
-      if (result !== undefined) {
+      const arrayCheck = isArray.safeParse(obj[k as keyof json]);
+      if (arrayCheck.success) {
+        //return array of strings as found
+        return obj[k as keyof json] as string[];
+      } else {
+        //call helper function to simplify array of objects
+        return findAllTexts(obj[k as keyof json]);
+      }
+    } else if (typeof obj[k as keyof json] === "object") {
+      let result = findByKey(obj[k as keyof json], key);
+      const arrayCheck = isArray.safeParse(result);
+      if (arrayCheck.success) {
         return result;
       }
     }
   }
+
+  //if nothing found
+  return null;
 }
 
-function findAllTexts(arr: object[]) {
+function findAllTexts(arr: object[]): string[] {
   let array: string[] = [];
-
   for (let obj of arr) {
     for (let key in obj) {
       if (key === "text") {
-        array.push(obj[key].replace(new RegExp("&nbsp;", "g"), " "));
+        const text = obj[key as keyof json] as string;
+        array.push(text.replace(new RegExp("&nbsp;", "g"), " "));
       }
     }
   }
