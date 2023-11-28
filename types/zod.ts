@@ -8,7 +8,7 @@ const SingleRecipeSchema = z.object({
   source: z.string().optional(),
   ingredients: z.string().array().nonempty(),
   instructions: z.string().array().nonempty(),
-  imageId: z.string().optional(),
+  imageId: z.string().nullable(),
   imageUrl: z.string().optional(),
 });
 
