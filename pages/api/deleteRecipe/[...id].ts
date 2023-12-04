@@ -6,6 +6,7 @@ import { z } from "zod";
 import { authOptions } from "../auth/[...nextauth]";
 import { Recipe } from "@/types/zod";
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import MongoDBClient from "@/lib/mongoDBClient";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,17 +18,16 @@ export default async function handler(
   if (req.method !== "DELETE") return res.status(405);
 
   const s3Client = new S3Client({});
-  const mongoClient = await clientPromise;
-  const db = mongoClient.db("data");
+  // const mongoClient = await clientPromise;
+  // const db = mongoClient.db("data");
+
+  const client = MongoDBClient.getInstance();
+  client.connect();
 
   const idCheck = z.string();
   const recipeId = idCheck.parse(req?.query?.id?.[0]);
 
-  const o_id: Types.ObjectId = new mongoose.Types.ObjectId(recipeId);
-
-  const deletion = await db.collection(`${session.user.id}`).findOneAndDelete({
-    _id: o_id,
-  });
+  const deletion = await client.deleteOne(session.user.id, recipeId);
 
   if (deletion.ok && deletion.value && deletion.value.imageId) {
     //if this post has an image, delete it

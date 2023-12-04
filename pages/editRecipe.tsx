@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/react";
 import clientPromise from "@/lib/db";
-import { z } from "zod";
+import { string, z } from "zod";
 import {
   MinusCircleIcon,
   PlusCircleIcon,
@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import mongoose from "mongoose";
 import { NextPageContext } from "next";
 import { Recipe } from "@/types/zod";
+import MongoDBClient from "@/lib/mongoDBClient";
 
 export default function EditRecipe({ recipe }: { recipe: Recipe }) {
   const emptyArray: string[] = [];
@@ -64,11 +65,12 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
       checkedIngredients.success === true &&
       checkedInstructions.success === true
     ) {
-      const updatedRecipe = {
+      const updatedRecipe: Recipe = {
         title: checkedTitle.data,
         source: source.trim(),
-        ingredients: checkedIngredients.data,
-        instructions: checkedInstructions.data,
+        ingredients: filteredIngredients as [string, ...string[]],
+        instructions: checkedInstructions.data as [string, ...string[]],
+        imageId: recipe.imageId,
       };
 
       const JSONrecipe = JSON.stringify(updatedRecipe);
@@ -254,23 +256,30 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
 
 export async function getServerSideProps(context: NextPageContext) {
   const session = await getSession(context);
-  const client = await clientPromise;
-  const db = client.db(`data`);
-  const id = `${context.query.id}`;
+  if (!session) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+      props: {},
+    };
+  }
 
-  const o_id = new mongoose.Types.ObjectId(id);
+  const client = MongoDBClient.getInstance();
+  client.connect();
+  const recipeId = `${context.query.id}`;
 
-  const response = await db.collection(`${session?.user?.id}`).findOne({
-    _id: o_id,
-  });
+  const response = await client.getSingleRecipe(session?.user.id, recipeId);
 
   if (response) {
-    const recipe = {
+    const recipe: Recipe = {
       id: response._id.toString(),
       title: response.title,
       source: response.source,
       ingredients: response.ingredients,
       instructions: response.instructions,
+      imageId: response.imageId,
     };
 
     return {
@@ -280,7 +289,3 @@ export async function getServerSideProps(context: NextPageContext) {
     };
   }
 }
-
-/*
-
-*/

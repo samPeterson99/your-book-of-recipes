@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { RecipeArraySchema } from "@/types/zod";
 import { authOptions } from "./auth/[...nextauth]";
+import MongoDBClient from "@/lib/mongoDBClient";
 
 export default async function getRecipes(
   req: NextApiRequest,
@@ -11,11 +12,12 @@ export default async function getRecipes(
   const session = await getServerSession(req, res, authOptions);
   if (!session || !session.user.id) return res.status(401);
 
-  const client = await clientPromise;
-  const db = client.db(`data`);
-  const userId: string | undefined = session.user.id;
+  const client = MongoDBClient.getInstance();
+  client.connect();
 
-  const recipes = await db.collection(`${userId}`).find({}).toArray();
+  const userId: string = session.user.id;
+
+  const recipes = await client.getRecipes(userId);
 
   const returnRecipes = RecipeArraySchema.parse(recipes);
   res.json(returnRecipes);

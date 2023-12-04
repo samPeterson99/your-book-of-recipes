@@ -2,12 +2,14 @@ import clientPromise from "@/lib/db";
 import { authOptions } from "./auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
+import MongoDBClient from "@/lib/mongoDBClient";
+import { Recipe, RecipeArray } from "@/types/zod";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const testRecipe = [
+  const dbRecipes: RecipeArray = [
     {
       title: "Chicken Wings",
       source: "How to Cook Everything by Mark Bittman",
@@ -26,6 +28,7 @@ export default async function handler(
         "Turn the wings over, baste again, then carefully spoon out any remaining fat. Return the wings to the oven until nicely browned, another 20 minutes or so. Again, make sure they release easily from the pan",
         "Raise the oven temperature to 450&deg;F. Carefully pour off any accumulated fat, then drizzle the wings with the hot sauce mixture and toss to coat. Spread them back out into a single layer and return them to the oven. Roast, tossing onces or twice, until crips all over, about 10 more minutes. Serve hot or at room temperature.",
       ],
+      imageId: null,
     },
     {
       title: "Shells with Broccoli and Capers",
@@ -47,6 +50,7 @@ export default async function handler(
         "Bring plenty of water to a boil for the pasta. When it boils, add salt and broccoli and cook, uncovered, until tender, 4 to 5 minutes. Scoop it out, shake off the water, add it to the bowl, and toss with the oil mixture. Cover",
         "Cook the pasta until al dente, then drain and add it to the broccoli. Toss well, season with plenty of pepper and toss with cheese.",
       ],
+      imageId: null,
     },
     {
       title: "Pad Thai",
@@ -77,10 +81,11 @@ export default async function handler(
         "Add noodles, sauce, bean sprouts and peanuts to the pan (reserving some peanuts for topping at the end). Toss everything to combine.",
         "Garnish the top with green onions, extra peanuts, cilantro and lime wedges. Serve immediately!",
       ],
+      imageId: null,
     },
   ];
 
-  const returnRecipe = [
+  const returnRecipes: RecipeArray = [
     {
       title: "Chicken Wings",
       source: "How to Cook Everything by Mark Bittman",
@@ -100,6 +105,7 @@ export default async function handler(
         "Raise the oven temperature to 450°F. Carefully pour off any accumulated fat, then drizzle the wings with the hot sauce mixture and toss to coat. Spread them back out into a single layer and return them to the oven. Roast, tossing onces or twice, until crips all over, about 10 more minutes. Serve hot or at room temperature.",
       ],
       id: "temp1",
+      imageId: null,
     },
     {
       title: "Shells with Broccoli and Capers",
@@ -122,6 +128,7 @@ export default async function handler(
         "Cook the pasta until al dente, then drain and add it to the broccoli. Toss well, season with plenty of pepper and toss with cheese.",
       ],
       id: "temp2",
+      imageId: null,
     },
     {
       title: "Pad Thai",
@@ -153,17 +160,20 @@ export default async function handler(
         "Garnish the top with green onions, extra peanuts, cilantro and lime wedges. Serve immediately!",
       ],
       id: "temp3",
+      imageId: null,
     },
   ];
 
   const session = await getServerSession(req, res, authOptions);
   if (!session || !session.user.id) return res.status(401);
-  const client = await clientPromise;
-  const db = client.db("data");
+
+  const client = MongoDBClient.getInstance();
+  client.connect();
 
   const userId: string | undefined = session.user.id;
 
-  const post = await db.collection(`${userId}`).insertMany(testRecipe);
+  const post = await client.insertMany(userId, dbRecipes);
+
   //find a way to return with real ids
-  return res.status(200).json(returnRecipe);
+  return res.status(200).json(returnRecipes);
 }

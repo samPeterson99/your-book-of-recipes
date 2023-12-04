@@ -9,6 +9,7 @@ import { NextPageContext } from "next";
 import { Recipe, RecipeArray } from "@/types/zod";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import MongoDBClient from "@/lib/mongoDBClient";
 
 enum DisplayOrder {
   AtoZ,
@@ -190,11 +191,11 @@ export async function getServerSideProps(context: NextPageContext) {
     };
   }
 
-  const client = await clientPromise;
-  const db = client.db(`data`);
+  const client = MongoDBClient.getInstance();
+  client.connect();
   const userId = session?.user.id;
 
-  const recipes = await db.collection(`${userId}`).find({}).toArray();
+  const recipes = await client.getRecipes(userId);
 
   const propRecipes = recipes.map((object) => {
     //need a different solution

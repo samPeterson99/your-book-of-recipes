@@ -6,6 +6,7 @@ import { NextPageContext } from "next";
 import { Recipe } from "@/types/zod";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import MongoDBClient from "@/lib/mongoDBClient";
 
 export default function RecipePage({ recipe }: { recipe: Recipe }) {
   return (
@@ -71,21 +72,27 @@ export default function RecipePage({ recipe }: { recipe: Recipe }) {
 
 export async function getServerSideProps(context: NextPageContext) {
   const session = await getSession(context);
-  const client = await clientPromise;
-  const db = client.db(`data`);
-
-  const query = context?.query?.id as string;
-
-  const _id = new mongoose.Types.ObjectId(query);
+  if (!session) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+      props: {},
+    };
+  }
 
   const userId = session?.user?.id;
 
-  const response = await db.collection(`${session?.user?.id}`).findOne({
-    _id: _id,
-  });
+  const client = MongoDBClient.getInstance();
+  client.connect();
+  const recipeId = `${context.query.id}`;
+
+  const response = await client.getSingleRecipe(userId, recipeId);
+  console.log(response);
 
   if (response) {
-    let url;
+    let url = null;
     console.log(response.imageId);
     if (response.imageId) {
       const s3Client = new S3Client({});
@@ -105,7 +112,7 @@ export async function getServerSideProps(context: NextPageContext) {
       source: response.source,
       ingredients: response.ingredients,
       instructions: response.instructions,
-      imageId: response.imageId,
+      imageId: response.imageId ? response.imageId : null,
       imageUrl: url,
     };
 
