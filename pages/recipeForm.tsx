@@ -1,18 +1,11 @@
 import { useRouter } from "next/router";
-import {
-  MinusCircleIcon,
-  PlusCircleIcon,
-  ArrowDownCircleIcon,
-  ArrowUpCircleIcon,
-} from "@heroicons/react/24/outline";
-import Dropzone from "react-dropzone";
 import { z } from "zod";
 import { useState } from "react";
 import IngredientForm from "@/components/IngredientForm";
 import InstructionForm from "@/components/InstructionForm";
+import ImageDropzone from "@/components/ImageDropzone";
 
 export default function RecipeForm() {
-  let imagePreview = "";
   const blankArray = ["", "", "", "", ""];
   const emptyArray: string[] = [];
 
@@ -29,10 +22,6 @@ export default function RecipeForm() {
   const [warning, setWarning] = useState("");
 
   const router = useRouter();
-
-  if (pictureFile) {
-    imagePreview = URL.createObjectURL(pictureFile);
-  }
 
   function fileToBlob(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
@@ -216,24 +205,6 @@ export default function RecipeForm() {
     }
   };
 
-  const handleDrop = async (droppedFiles: File[]) => {
-    console.log("dropped");
-    const fileType = droppedFiles[0].type;
-    if (fileType === "image/png" || fileType === "image/jpeg") {
-      setPictureFile(droppedFiles[0]);
-      setPictureError(false);
-      droppedFiles.pop();
-    } else {
-      droppedFiles.pop();
-      setPictureError(true);
-    }
-  };
-
-  const removeImage = () => {
-    setPictureFile(null);
-    setPictureError(false);
-  };
-
   return (
     <div className="pageContainer">
       <form
@@ -299,41 +270,12 @@ export default function RecipeForm() {
           </div>
 
           <hr className="border-black my-4 w-full shadow col-start-1"></hr>
-
-          {pictureFile ? (
-            <div>
-              {" "}
-              <img
-                className="h-44 w-44"
-                src={imagePreview}
-                alt=""
-              />
-              <button
-                type="button"
-                className="flex-none border-2 col-start-1 w-1/2 bg-purple"
-                onClick={removeImage}>
-                Remove image
-              </button>
-            </div>
-          ) : (
-            <Dropzone onDrop={handleDrop}>
-              {({ getRootProps, getInputProps }) => (
-                <div
-                  {...getRootProps()}
-                  className="h-32 bg-gray-300 max-w-sm">
-                  <input {...getInputProps()} />
-                  <p className="text-center mt-4 h-auto">
-                    Drag & drop images here, or click to select files
-                    {pictureError && (
-                      <p className="text-center mt-2 font-bold h-auto text-red-500">
-                        The image must be either a .png or .jpeg file
-                      </p>
-                    )}
-                  </p>
-                </div>
-              )}
-            </Dropzone>
-          )}
+          <ImageDropzone
+            pictureFile={pictureFile}
+            setPictureFile={setPictureFile}
+            pictureError={pictureError}
+            setPictureError={setPictureError}
+          />
           <button
             className="mt-2 flex-none border-2 col-start-1 w-1/2 bg-purple mb-4"
             type="submit">

@@ -9,10 +9,10 @@ import Dropzone from "react-dropzone";
 import AmazonS3Client from "@/lib/amazonS3Client";
 import IngredientForm from "@/components/IngredientForm";
 import InstructionForm from "@/components/InstructionForm";
+import ImageDropzone from "@/components/ImageDropzone";
 
 export default function EditRecipe({ recipe }: { recipe: Recipe }) {
   const emptyArray: string[] = [];
-  let imagePreview = "";
 
   const [title, setTitle] = useState(recipe.title);
   const [source, setSource] = useState(recipe.source ? recipe.source : "");
@@ -25,10 +25,6 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
 
   const [errors, setErrors] = useState(emptyArray);
   const router = useRouter();
-
-  if (pictureFile) {
-    imagePreview = URL.createObjectURL(pictureFile);
-  }
 
   function fileToBlob(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
@@ -171,24 +167,6 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
     }
   };
 
-  const handleDrop = async (droppedFiles: File[]) => {
-    console.log("dropped");
-    const fileType = droppedFiles[0].type;
-    if (fileType === "image/png" || fileType === "image/jpeg") {
-      setPictureFile(droppedFiles[0]);
-      setPictureError(false);
-      droppedFiles.pop();
-    } else {
-      droppedFiles.pop();
-      setPictureError(true);
-    }
-  };
-
-  const removeImage = () => {
-    setPictureFile(null);
-    setPictureError(false);
-  };
-
   //add error checking
   return (
     <div className="pageContainer">
@@ -233,39 +211,13 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
               src={recipe.imageUrl}
               alt=""
             />
-          ) : pictureFile ? (
-            <div>
-              {" "}
-              <img
-                className="h-44 w-44"
-                src={imagePreview}
-                alt=""
-              />
-              <button
-                type="button"
-                className="flex-none border-2 col-start-1 w-1/2 bg-purple"
-                onClick={removeImage}>
-                Remove image
-              </button>
-            </div>
           ) : (
-            <Dropzone onDrop={handleDrop}>
-              {({ getRootProps, getInputProps }) => (
-                <div
-                  {...getRootProps()}
-                  className="h-32 bg-gray-300 max-w-sm">
-                  <input {...getInputProps()} />
-                  <p className="text-center mt-4 h-auto">
-                    Drag & drop images here, or click to select files
-                    {pictureError && (
-                      <p className="text-center mt-2 font-bold h-auto text-red-500">
-                        The image must be either a .png or .jpeg file
-                      </p>
-                    )}
-                  </p>
-                </div>
-              )}
-            </Dropzone>
+            <ImageDropzone
+              pictureFile={pictureFile}
+              setPictureFile={setPictureFile}
+              pictureError={pictureError}
+              setPictureError={setPictureError}
+            />
           )}
           <button
             className="flex-none border-2 mt-2 col-start-1 w-full bg-purple"
