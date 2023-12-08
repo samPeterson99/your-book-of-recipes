@@ -7,6 +7,7 @@ import { authOptions } from "../auth/[...nextauth]";
 import { Recipe } from "@/types/zod";
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import MongoDBClient from "@/lib/mongoDBClient";
+import AmazonS3Client from "@/lib/amazonS3Client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,7 +18,8 @@ export default async function handler(
   if (!session || !session.user.id) return res.status(401);
   if (req.method !== "DELETE") return res.status(405);
 
-  const s3Client = new S3Client({});
+  // const s3Client = new S3Client({});
+  const s3Client = AmazonS3Client.getInstance("yrrb");
   // const mongoClient = await clientPromise;
   // const db = mongoClient.db("data");
 
@@ -31,13 +33,12 @@ export default async function handler(
 
   if (deletion.ok && deletion.value && deletion.value.imageId) {
     //if this post has an image, delete it
-    const command = new DeleteObjectCommand({
-      Bucket: "yrrb",
-      Key: `${session.user.id}/${deletion.value.imageId}`,
-    });
 
     try {
-      const response = await s3Client.send(command);
+      const response = await s3Client.deleteFile(
+        session.user.id,
+        deletion.value.imageId
+      );
       console.log(response);
     } catch (error) {
       console.error(error);

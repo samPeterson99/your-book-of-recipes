@@ -91,7 +91,7 @@ class MongoDBClient {
       throw new Error("No database connection");
     }
     const o_id = new mongoose.Types.ObjectId(objectId);
-    const { title, source, ingredients, instructions } = recipe;
+    const { title, source, ingredients, instructions, imageId } = recipe;
 
     const post = await this.db.collection(`${userId}`).updateOne(
       {
@@ -103,6 +103,7 @@ class MongoDBClient {
           source: source,
           ingredients: ingredients,
           instructions: instructions,
+          imageId: imageId,
         },
       }
     );

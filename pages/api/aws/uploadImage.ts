@@ -5,6 +5,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { Session, getServerSession } from "next-auth";
+import AmazonS3Client from "@/lib/amazonS3Client";
 
 export const config = {
   api: {
@@ -28,7 +29,8 @@ export default async function awsUploader(
 
   const session: Session | null = await getServerSession(req, res, authOptions);
   if (!session || !session.user.id) return res.status(401);
-  const s3Client = new S3Client({});
+  // const s3Client = new S3Client({});
+  const s3Client = AmazonS3Client.getInstance("yrrb");
 
   const formData: FormData = await new Promise((resolve, reject) => {
     const form = formidable();
@@ -59,15 +61,21 @@ export default async function awsUploader(
 
   const pictureBlob = fs.readFileSync(picturePath);
 
-  const command = new PutObjectCommand({
-    Bucket: "yrrb",
-    Key: `${userId}/${photoKey}`,
-    ContentType: pictureType,
-    Body: pictureBlob,
-  });
+  // const command = new PutObjectCommand({
+  //   Bucket: "yrrb",
+  //   Key: `${userId}/${photoKey}`,
+  //   ContentType: pictureType,
+  //   Body: pictureBlob,
+  // });
 
   try {
-    const response = await s3Client.send(command);
+    const response = await s3Client.uploadFile(
+      userId,
+      photoKey,
+      pictureType,
+      pictureBlob
+    );
+    // const response = await s3Client.send(command);
     console.log(response);
     res.status(200).json({ key: photoKey });
   } catch (error) {

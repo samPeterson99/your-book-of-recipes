@@ -1,25 +1,24 @@
 import { getSession } from "next-auth/react";
-import clientPromise from "@/lib/db";
 import { string, z } from "zod";
-import {
-  MinusCircleIcon,
-  PlusCircleIcon,
-  ArrowDownCircleIcon,
-  ArrowUpCircleIcon,
-} from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import mongoose from "mongoose";
 import { NextPageContext } from "next";
 import { Recipe } from "@/types/zod";
 import MongoDBClient from "@/lib/mongoDBClient";
+import Dropzone from "react-dropzone";
+import AmazonS3Client from "@/lib/amazonS3Client";
+import IngredientForm from "@/components/IngredientForm";
+import InstructionForm from "@/components/InstructionForm";
 
 export default function EditRecipe({ recipe }: { recipe: Recipe }) {
   const emptyArray: string[] = [];
+  let imagePreview = "";
 
   const [title, setTitle] = useState(recipe.title);
   const [source, setSource] = useState(recipe.source ? recipe.source : "");
   const [ingredients, setIngredients] = useState<string[]>(recipe.ingredients);
+  const [pictureFile, setPictureFile] = useState<File | null>(null);
+  const [pictureError, setPictureError] = useState(false);
   const [instructions, setInstructions] = useState<string[]>(
     recipe.instructions
   );
@@ -27,23 +26,73 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
   const [errors, setErrors] = useState(emptyArray);
   const router = useRouter();
 
-  const handleIngredientChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    let data = [...ingredients];
-    data[index] = event.target.value;
-    setIngredients(data);
-  };
+  if (pictureFile) {
+    imagePreview = URL.createObjectURL(pictureFile);
+  }
 
-  const handleInstructionChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>,
-    index: number
-  ) => {
-    let data = [...instructions];
-    data[index] = event.target.value;
-    setInstructions(data);
-  };
+  function fileToBlob(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const result = reader.result;
+
+        if (result instanceof ArrayBuffer) {
+          const blob = new Blob([result], { type: file.type });
+          resolve(blob);
+        } else {
+          reject(new Error("Failed to read file as ArrayBuffer"));
+        }
+      };
+
+      reader.onerror = (error) => {
+        reject(error);
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  async function storeImage(): Promise<string | null> {
+    return new Promise(async (resolve, reject) => {
+      if (!pictureFile) {
+        resolve(null);
+      } else {
+        try {
+          const formData = new FormData();
+
+          const fileType = pictureFile?.type;
+
+          const fileBlob = await fileToBlob(pictureFile);
+          formData.append("fileBlob", fileBlob);
+          formData.append("fileType", fileType);
+          console.log(fileBlob);
+
+          const endpoint = "/api/aws/uploadImage";
+          const options = {
+            method: "POST",
+            body: formData,
+          };
+
+          const response = await fetch(endpoint, options);
+          const result = await response.json();
+          console.log("store image:", result);
+
+          if (response.ok) {
+            resolve(result.key);
+          } else {
+            console.error("Your image did not upload. Please try again later.");
+            reject(null);
+          }
+        } catch (error) {
+          console.error(
+            "An error occurred while uploading the image. Please try again later."
+          );
+          reject(null);
+        }
+      }
+    });
+  }
 
   //bring in line with recipeForm submit
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -65,12 +114,21 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
       checkedIngredients.success === true &&
       checkedInstructions.success === true
     ) {
+      let imageId;
+      if (recipe.imageId) {
+        imageId = recipe.imageId;
+      } else {
+        imageId = await storeImage();
+      }
+
+      console.log(imageId);
+
       const updatedRecipe: Recipe = {
         title: checkedTitle.data,
         source: source.trim(),
         ingredients: filteredIngredients as [string, ...string[]],
         instructions: checkedInstructions.data as [string, ...string[]],
-        imageId: recipe.imageId,
+        imageId: imageId,
       };
 
       const JSONrecipe = JSON.stringify(updatedRecipe);
@@ -85,6 +143,7 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
 
       const response = await fetch(endpoint, options);
       const result = await response.json();
+      console.log(result);
       router.push({
         pathname: `/recipePage`,
         query: { id: recipe.id },
@@ -112,42 +171,22 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
     }
   };
 
-  const addIngredient = () => {
-    let data = [...ingredients];
-    data.push("");
-    setIngredients(data);
-  };
-
-  const addInstructionAbove = (index: number) => {
-    let data = [...instructions];
-    if (index === 0) {
-      data.splice(0, 0, "");
+  const handleDrop = async (droppedFiles: File[]) => {
+    console.log("dropped");
+    const fileType = droppedFiles[0].type;
+    if (fileType === "image/png" || fileType === "image/jpeg") {
+      setPictureFile(droppedFiles[0]);
+      setPictureError(false);
+      droppedFiles.pop();
     } else {
-      data.splice(index, 0, "");
+      droppedFiles.pop();
+      setPictureError(true);
     }
-    setInstructions(data);
   };
 
-  const addInstructionBelow = (index: number) => {
-    let data = [...instructions];
-    if (index === instructions.length) {
-      data.push("");
-    } else {
-      data.splice(index + 1, 0, "");
-    }
-    setInstructions(data);
-  };
-
-  const removeIngredientField = (index: number) => {
-    let data = [...ingredients];
-    data.splice(index, 1);
-    setIngredients(data);
-  };
-
-  const removeInstructionField = (index: number) => {
-    let data = [...instructions];
-    data.splice(index, 1);
-    setInstructions(data);
+  const removeImage = () => {
+    setPictureFile(null);
+    setPictureError(false);
   };
 
   //add error checking
@@ -187,67 +226,62 @@ export default function EditRecipe({ recipe }: { recipe: Recipe }) {
             onChange={(event) => setSource(event.target.value)}
           />
           <hr className="border-black my-4 w-full shadow col-start-1"></hr>
+          {/* TODO: make image deletable from edit page */}
+          {recipe.imageUrl ? (
+            <img
+              className="h-60 w-60"
+              src={recipe.imageUrl}
+              alt=""
+            />
+          ) : pictureFile ? (
+            <div>
+              {" "}
+              <img
+                className="h-44 w-44"
+                src={imagePreview}
+                alt=""
+              />
+              <button
+                type="button"
+                className="flex-none border-2 col-start-1 w-1/2 bg-purple"
+                onClick={removeImage}>
+                Remove image
+              </button>
+            </div>
+          ) : (
+            <Dropzone onDrop={handleDrop}>
+              {({ getRootProps, getInputProps }) => (
+                <div
+                  {...getRootProps()}
+                  className="h-32 bg-gray-300 max-w-sm">
+                  <input {...getInputProps()} />
+                  <p className="text-center mt-4 h-auto">
+                    Drag & drop images here, or click to select files
+                    {pictureError && (
+                      <p className="text-center mt-2 font-bold h-auto text-red-500">
+                        The image must be either a .png or .jpeg file
+                      </p>
+                    )}
+                  </p>
+                </div>
+              )}
+            </Dropzone>
+          )}
           <button
-            className="flex-none border-2 col-start-1 w-1/2 bg-purple"
+            className="flex-none border-2 mt-2 col-start-1 w-full bg-purple"
             type="submit">
             Submit changes
           </button>
         </div>
         <div className="pageRight">
-          <h3 className="iWord">Ingredients</h3>
-          {ingredients.map((form, index) => {
-            return (
-              <div
-                className="flex flex-row my-1 items-center"
-                key={index}>
-                <input
-                  className="ingredientBox"
-                  name="ingredient"
-                  value={form}
-                  onChange={(event) => handleIngredientChange(event, index)}
-                />
-                <MinusCircleIcon
-                  className="inputButton"
-                  onClick={() => removeIngredientField(index)}
-                />
-              </div>
-            );
-          })}
-          <PlusCircleIcon
-            className="addButton"
-            onClick={addIngredient}
+          <IngredientForm
+            ingredients={ingredients}
+            setIngredients={setIngredients}
           />
-          <h3 className="iWord">Instructions</h3>
-          {instructions.map((form, index) => {
-            return (
-              <div
-                className="flex flex-row mt-1 place-items-center"
-                key={index}>
-                <h3 className="label">{index + 1}. </h3>
-                <textarea
-                  className="inputBox"
-                  name="instruction"
-                  rows={3}
-                  value={form}
-                  onChange={(event) => handleInstructionChange(event, index)}
-                />
-                <ArrowUpCircleIcon
-                  className="inputButton"
-                  type="button"
-                  onClick={() => addInstructionAbove(index)}
-                />
-                <div className="add">ADD</div>
-                <ArrowDownCircleIcon
-                  className="inputButton"
-                  onClick={() => addInstructionBelow(index)}
-                />
-                <MinusCircleIcon
-                  className="inputButton"
-                  onClick={() => removeInstructionField(index)}
-                />
-              </div>
-            );
-          })}
+          <InstructionForm
+            instructions={instructions}
+            setInstructions={setInstructions}
+          />
         </div>
       </form>
     </div>
@@ -273,13 +307,19 @@ export async function getServerSideProps(context: NextPageContext) {
   const response = await client.getSingleRecipe(session?.user.id, recipeId);
 
   if (response) {
+    let url = null;
+    if (response.imageId) {
+      const s3Client = AmazonS3Client.getInstance("yrrb");
+      url = await s3Client.getUrl(session.user.id, response.imageId);
+    }
     const recipe: Recipe = {
       id: response._id.toString(),
       title: response.title,
       source: response.source,
       ingredients: response.ingredients,
       instructions: response.instructions,
-      imageId: response.imageId,
+      imageId: response.imageId ? response.imageId : null,
+      imageUrl: url,
     };
 
     return {

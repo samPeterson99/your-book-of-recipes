@@ -7,6 +7,7 @@ import { Recipe } from "@/types/zod";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import MongoDBClient from "@/lib/mongoDBClient";
+import AmazonS3Client from "@/lib/amazonS3Client";
 
 export default function RecipePage({ recipe }: { recipe: Recipe }) {
   return (
@@ -47,11 +48,13 @@ export default function RecipePage({ recipe }: { recipe: Recipe }) {
         </div>
 
         <div className="pageRight">
-          <img
-            className="h-60 w-60"
-            src={recipe.imageUrl}
-            alt=""
-          />
+          {recipe.imageUrl && (
+            <img
+              className="h-60 w-60"
+              src={recipe.imageUrl}
+              alt=""
+            />
+          )}
           <h3 className="iWord">Instructions</h3>
           <ul>
             {recipe.instructions.map((item, index) => {
@@ -95,14 +98,15 @@ export async function getServerSideProps(context: NextPageContext) {
     let url = null;
     console.log(response.imageId);
     if (response.imageId) {
-      const s3Client = new S3Client({});
+      // const s3Client = new S3Client({});
+      const s3Client = AmazonS3Client.getInstance("yrrb");
+      url = await s3Client.getUrl(userId, response.imageId);
+      // const command = new GetObjectCommand({
+      //   Bucket: "yrrb",
+      //   Key: `${userId}/${response.imageId}`,
+      // });
 
-      const command = new GetObjectCommand({
-        Bucket: "yrrb",
-        Key: `${userId}/${response.imageId}`,
-      });
-
-      url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+      // url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
       console.log(url);
     }
 

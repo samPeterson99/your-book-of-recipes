@@ -8,8 +8,8 @@ const SingleRecipeSchema = z.object({
   source: z.string().optional(),
   ingredients: z.string().array().nonempty(),
   instructions: z.string().array().nonempty(),
-  imageId: z.string().nullable(),
-  imageUrl: z.string().optional(),
+  imageId: z.string().nullish(),
+  imageUrl: z.string().nullish(),
 });
 
 type Recipe = z.infer<typeof SingleRecipeSchema>;

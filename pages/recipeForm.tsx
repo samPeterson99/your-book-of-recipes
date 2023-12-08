@@ -8,6 +8,8 @@ import {
 import Dropzone from "react-dropzone";
 import { z } from "zod";
 import { useState } from "react";
+import IngredientForm from "@/components/IngredientForm";
+import InstructionForm from "@/components/InstructionForm";
 
 export default function RecipeForm() {
   let imagePreview = "";
@@ -31,24 +33,6 @@ export default function RecipeForm() {
   if (pictureFile) {
     imagePreview = URL.createObjectURL(pictureFile);
   }
-
-  const handleIngredientChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    let data = [...ingredients];
-    data[index] = event.target.value;
-    setIngredients(data);
-  };
-
-  const handleInstructionChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>,
-    index: number
-  ) => {
-    let data = [...instructions];
-    data[index] = event.target.value;
-    setInstructions(data);
-  };
 
   function fileToBlob(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
@@ -196,7 +180,6 @@ export default function RecipeForm() {
 
   const getRecipe = async () => {
     setErrors([]);
-    let url;
 
     setWarning("this may take a minute");
 
@@ -231,44 +214,6 @@ export default function RecipeForm() {
       );
       console.log(e);
     }
-  };
-
-  const addIngredient = () => {
-    let data = [...ingredients];
-    data.push("");
-    setIngredients(data);
-  };
-
-  const addInstructionAbove = (index: number) => {
-    let data = [...instructions];
-    if (index === 0) {
-      data.splice(0, 0, "");
-    } else {
-      data.splice(index, 0, "");
-    }
-    setInstructions(data);
-  };
-
-  const addInstructionBelow = (index: number) => {
-    let data = [...instructions];
-    if (index === instructions.length) {
-      data.push("");
-    } else {
-      data.splice(index + 1, 0, "");
-    }
-    setInstructions(data);
-  };
-
-  const removeIngredientField = (index: number) => {
-    let data = [...ingredients];
-    data.splice(index, 1);
-    setIngredients(data);
-  };
-
-  const removeInstructionField = (index: number) => {
-    let data = [...instructions];
-    data.splice(index, 1);
-    setInstructions(data);
   };
 
   const handleDrop = async (droppedFiles: File[]) => {
@@ -337,27 +282,23 @@ export default function RecipeForm() {
             value={source}
             onChange={(event) => setSource(event.target.value)}
           />
+          <div className="mt-2 flex flex-col bg-yellow-200 pl-2">
+            <label className="labelLeft">Link:</label>
+            <input
+              className="inputBoxLeft w-10/12"
+              name="link"
+              type="text"
+              onChange={(event) => setLink(event.target.value)}
+            />
+            <button
+              className="flex-none border-2 col-start-1 w-10/12 mb-2 bg-purple"
+              type="button"
+              onClick={validateLinkAndFetch}>
+              Get recipe from link
+            </button>
+          </div>
 
           <hr className="border-black my-4 w-full shadow col-start-1"></hr>
-
-          <label className="labelLeft">Link:</label>
-          <input
-            className="inputBoxLeft w-10/12"
-            name="link"
-            type="text"
-            onChange={(event) => setLink(event.target.value)}
-          />
-          <button
-            className="flex-none border-2 col-start-1 w-1/2 mb-2 bg-purple"
-            type="button"
-            onClick={validateLinkAndFetch}>
-            Get recipe from link
-          </button>
-          <button
-            className="flex-none border-2 col-start-1 w-1/2 bg-purple mb-4"
-            type="submit">
-            Submit
-          </button>
 
           {pictureFile ? (
             <div>
@@ -379,85 +320,36 @@ export default function RecipeForm() {
               {({ getRootProps, getInputProps }) => (
                 <div
                   {...getRootProps()}
-                  className="h-20 bg-gray-300 max-w-sm">
+                  className="h-32 bg-gray-300 max-w-sm">
                   <input {...getInputProps()} />
                   <p className="text-center mt-4 h-auto">
                     Drag & drop images here, or click to select files
+                    {pictureError && (
+                      <p className="text-center mt-2 font-bold h-auto text-red-500">
+                        The image must be either a .png or .jpeg file
+                      </p>
+                    )}
                   </p>
-                  {pictureError && (
-                    <p className="text-center font-bold h-auto text-red-500">
-                      The image must be either a .png or .jpeg file
-                    </p>
-                  )}
                 </div>
               )}
             </Dropzone>
           )}
+          <button
+            className="mt-2 flex-none border-2 col-start-1 w-1/2 bg-purple mb-4"
+            type="submit">
+            Submit
+          </button>
         </div>
 
         <div className="pageRight">
-          <label
-            className="iWord"
-            htmlFor="ingredients">
-            Ingredients
-          </label>
-          {ingredients.map((form, index) => {
-            return (
-              <div
-                className="flex flex-row my-1 items-center"
-                key={index}>
-                <input
-                  className="ingredientBox"
-                  name="ingredient"
-                  value={form}
-                  onChange={(event) => handleIngredientChange(event, index)}
-                />
-                <MinusCircleIcon
-                  className="inputButton"
-                  onClick={() => removeIngredientField(index)}
-                />
-              </div>
-            );
-          })}
-          <PlusCircleIcon
-            className="addButton"
-            onClick={addIngredient}
+          <IngredientForm
+            ingredients={ingredients}
+            setIngredients={setIngredients}
           />
-          <label
-            className="iWord"
-            htmlFor="instructions">
-            Instructions
-          </label>
-          {instructions.map((form, index) => {
-            return (
-              <div
-                className="flex flex-row my-1 place-items-center"
-                key={index}>
-                <h3 className="label">{index + 1}.</h3>
-                <textarea
-                  className="inputBox"
-                  name="instruction"
-                  rows={3}
-                  value={form}
-                  onChange={(event) => handleInstructionChange(event, index)}
-                />
-                <ArrowUpCircleIcon
-                  className="inputButton"
-                  type="button"
-                  onClick={() => addInstructionAbove(index)}
-                />
-                <div className="add">ADD</div>
-                <ArrowDownCircleIcon
-                  className="inputButton"
-                  onClick={() => addInstructionBelow(index)}
-                />
-                <MinusCircleIcon
-                  className="inputButton"
-                  onClick={() => removeInstructionField(index)}
-                />
-              </div>
-            );
-          })}
+          <InstructionForm
+            instructions={instructions}
+            setInstructions={setInstructions}
+          />
         </div>
       </form>
     </div>
